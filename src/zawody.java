@@ -1,45 +1,27 @@
-import org.sqlite.*;
-
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.naming.spi.DirStateFactory.Result;
 
 
 public class zawody {
-	static final String USER = "username";
-	static final String PASS = "password";
-	static final String DB_URL = "jdbc:sqlite:wynik.db";
-	private Connection conn;
-	private Statement stat;
+
+
 	ArrayList <zawodnik> zawodnicy = new ArrayList <zawodnik>();
 	ArrayList <przejazd> przejazdy = new ArrayList <przejazd>();
-	//conn = DriverManager.getConnection(DB_URL,USER,PASS);
+	long startTime;
+
 	public zawody(){
-		try {
-			Class.forName("org.sqlite.JDBC");
-		}
-		catch(Exception e){
-			e.getMessage();
-		
-		}
-		try {
-			conn = DriverManager.getConnection(DB_URL);
-			stat = conn.createStatement();
-
-		}
-		catch(SQLException e){
-			e.getMessage();
-			System.out.println("problem z po³¹czeniem");
-
-		}
+		Date czas = new Date();
+		startTime = czas.getTime();
 	}
 	
 	boolean addZawodnik(int nr, String imie, String nazwisko, String team){
 		try{
 			zawodnicy.add(new zawodnik(nr, imie, nazwisko, team));
-			insertZawodnik(nr, imie, nazwisko, team);
+			
 			return true;
 		}
 		catch(Exception e){
@@ -48,18 +30,74 @@ public class zawody {
 		}
 	}
 	
+	/*
 	boolean addPrzejazd(zawodnik zawodnik, int czas){
 		try{
 			//int okrazenie = selectIleOkrazen(zawodnik)+1;
 			int okrazenie = getOkrazenia(zawodnik);
 			przejazdy.add(new przejazd(zawodnik, czas, okrazenie+1));
-			insertPrzejazd(zawodnik.nr, czas, okrazenie+1);
+			
 			return true;
 		}
 		catch(Exception e){
 			e.getMessage();
 			return false;
 		}
+	}
+	*/
+	
+	boolean addPrzejazd(zawodnik zawodnik){
+		try{
+			//int okrazenie = selectIleOkrazen(zawodnik)+1;
+			int okrazenie = getOkrazenia(zawodnik);
+			int czas = (int) (new Date().getTime()-startTime);
+			przejazdy.add(new przejazd(zawodnik, czas, okrazenie+1));
+			
+			return true;
+		}
+		catch(Exception e){
+			e.getMessage();
+			return false;
+		}
+	}
+	
+	public String[][] getZawodnicyTable(){
+		String[][] table = new String [zawodnicy.size()][4];
+		for(int i=0; i<zawodnicy.size(); i++){
+			String imie, nazwisko, nr, team;
+			nr = Integer.toString(zawodnicy.get(i).nr);
+			imie = zawodnicy.get(i).imie;
+			nazwisko = zawodnicy.get(i).nazwisko;
+			team = zawodnicy.get(i).team;
+			table[i] = new String[] {nr, imie, nazwisko, team};
+		}
+		return table;
+	}
+	
+	public String[][] getPrzejazdyTable(){
+		String[][] table = new String[przejazdy.size()][6];
+		for(int i=0; i<przejazdy.size(); i++){
+			String nr, imie, nazwisko, team, czas, okrazenie;
+			nr = Integer.toString(przejazdy.get(i).zawodnik.nr);
+			imie = przejazdy.get(i).zawodnik.imie;
+			nazwisko = przejazdy.get(i).zawodnik.nazwisko;
+			team = przejazdy.get(i).zawodnik.team;
+			czas = Integer.toString(przejazdy.get(i).czas);
+			okrazenie = Integer.toString(przejazdy.get(i).okrazenie);
+			table[i] = new String[] {nr, imie, nazwisko, team, czas, okrazenie};
+		}
+		return table;
+	}
+	
+	public String[] getLastPrzejazd(){
+		String nr, imie, nazwisko, team, czas, okrazenie;
+		nr = Integer.toString(przejazdy.get(przejazdy.size()-1).zawodnik.nr);
+		imie = przejazdy.get(przejazdy.size()-1).zawodnik.imie;
+		nazwisko = przejazdy.get(przejazdy.size()-1).zawodnik.nazwisko;
+		team = przejazdy.get(przejazdy.size()-1).zawodnik.team;
+		czas = Integer.toString(przejazdy.get(przejazdy.size()-1).czas);
+		okrazenie = Integer.toString(przejazdy.get(przejazdy.size()-1).okrazenie);
+		return new String[]{nr, imie, nazwisko, team, czas, okrazenie};
 	}
 	
 	public zawodnik getZawodnikById(int nr){
@@ -75,125 +113,6 @@ public class zawody {
 		}
 		return 0;
 	}
-	
-	boolean createTables(){
-		
-		String createZawodnicy = 
-				"CREATE TABLE IF NOT EXISTS zawodnicy ("
-				+ "nr int PRIMARY KEY,"
-				+ "imie varchar(32) not null,"
-				+ "nazwisko varchar(32) not null,"
-				+ "team varchar(64) not null)";
-		
-		String createPrzejazdy = 
-				"CREATE TABLE IF NOT EXISTS przejazdy ("
-				+ "nr int not null,"
-				+ "czas int not null,"
-				+ "okrazenie int not null DEFAULT 1,"
-				+ "FOREIGN KEY (nr) REFERENCES zawodnicy(nr) )";
-		
-		try {
-			stat.execute(createZawodnicy);
-			stat.execute(createPrzejazdy);
-			return true;
-		}
-		catch(SQLException e){
-			e.getMessage();
-			System.out.println("problem z po³¹czeniem");
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
-	boolean insertZawodnik(int nr, String imie, String nazwisko, String team){
-		String InsertZawodnik = "INSTERT INTO 'zawodnicy' VALUES"
-				+ " ("+nr+", '"+imie+"', '"+nazwisko+"', '"+team+"')";
-		try {
-			 PreparedStatement prepStmt = conn.prepareStatement(
-					 "insert into zawodnicy values (?, ?, ?, ?);");
-	            prepStmt.setInt(1, nr);
-	            prepStmt.setString(2, imie);
-	            prepStmt.setString(3, nazwisko);
-	            prepStmt.setString(4, team);
-	            prepStmt.execute();
-			
-			return true;
-		}
-		catch(SQLException e){
-			e.getMessage();
-			System.out.println("b³¹d zapytania");
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
-	boolean insertPrzejazd(int nr, int czas, int okrazenie){
-		String InsertPrzejazd = "INSTERT INTO 'przejazdy' VALUES"
-				+ " ("+nr+", "+czas+")";
-		try {
-			 PreparedStatement prepStmt = conn.prepareStatement(
-					 "insert into przejazdy values (?, ?, ?);");
-			 prepStmt.setInt(1, nr);
-			 prepStmt.setInt(2, czas);
-			 prepStmt.setInt(3, okrazenie);
-			 prepStmt.execute();
-			 return true;
-		}		
-		catch(SQLException e){
-			e.getMessage();
-			System.out.println("b³¹d zapytania");
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
-	public ArrayList<przejazd> selectPrzejazdy(){
-		ArrayList<przejazd> lista = new ArrayList<przejazd>();
-		try{
-			ResultSet result = stat.executeQuery("Select nr, imie, nazwisko, team, czas, okrazenie FROM zawodnicy, przejazdy WHERE przejazdy.nr=zawodnicy.nr");
-			while(result.next()){
-				lista.add(new przejazd(new zawodnik(result.getInt("nr"), result.getString("imie"), result.getString("nazwisko"), result.getString("team")), result.getInt("czas"), result.getInt("okrazenie")));
-			}
-			return lista;
-		}
-		catch(SQLException e){
-			e.getMessage();
-			System.out.println("b³¹d zapytania");
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
-	public int selectIleOkrazen(zawodnik zawodnik){
-		try{
-			ResultSet result = stat.executeQuery("Select okrazenie FROM przejazdy, zawodnicy WHERE przejazdy.nr=zawodnicy.nr AND zawodnicy.nr="+zawodnik.nr);
-			return result.getInt("okrazenie");
-		}
-		catch(SQLException e){
-			e.getMessage();
-			System.out.println("b³¹d zapytaniakurwakruwa");
-			e.printStackTrace();
-			return 0;
-		}
 
-	}
-	
-	public ArrayList<zawodnik> selectZawodnicy(){
-		ArrayList<zawodnik> lista = new ArrayList<zawodnik>();
-		String select = "Select * FROM zawodnicy";
-		try{
-			ResultSet result = stat.executeQuery("Select * FROM zawodnicy");
-			while(result.next()){
-				lista.add(new zawodnik(result.getInt("nr"), result.getString("imie"), result.getString("nazwisko"), result.getString("team")));
-			}
-			return lista;
-		}
-		catch(SQLException e){
-			e.getMessage();
-			System.out.println("b³¹d zapytania");
-			e.printStackTrace();
-			return null;
-		}
-	}
 	
 }

@@ -1,220 +1,101 @@
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-
-import java.awt.*;
-import java.awt.List;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-
-import java.util.*;
 
 
+public class app {
 
-public class app implements ActionListener{
-
-	private static class appDisplay extends JPanel {
-		public void paintComponent(Graphics g) {
-			super.paintComponent(g);
-		    g.drawString( "Hello World!", 300, 30 );
-		}
-	}
 	
 	
 	public static void main(String[] args) {
-		final zawody z = new zawody();
-		z.createTables();
-		z.addZawodnik(4, "Micha³", "D¹browski", "Cyklo Team");
-		z.addZawodnik(5, "Adam", "Œwieca", "Cyklo Team");
-		z.addZawodnik(6, "Marcin", "Superson", "Cyklo Team");
 
+		
+		final zawody zawody = new zawody();
+		zawody.addZawodnik(110, "Micha³", "D¹browski", "Cyklo Team");
+		zawody.addZawodnik(26, "Micha³", "Rzeczycki", "Old School MTB Team");
+		zawody.addZawodnik(1, "Bartosz", "Banach", "Hotel 4 Brzozy");
+		final String columnNames[] = { "nr", "imie", "nazwisko", "team", "czas", "lap"};
 
-		ArrayList<zawodnik> zawodnicy = z.selectZawodnicy();
-		zawodnicy = z.selectZawodnicy();
-		//zawodnicy = z.selectZawodnicy();
-		System.out.println(zawodnicy.get(0).nr);
+		//String[][] lista = zawody.getZawodnicyTable();
 		
-		
-		final ArrayList<Integer> numeryLista = new ArrayList<Integer>();
-		Date czas = new Date();
-		final long startTime = czas.getTime();
-		//--------------------------------------------------------//
-		
-		
-		final JTextField numerText = new JTextField(3);
-		numerText.setBackground(new Color(200,200,10));
-		//appDisplay displayPanel = new appDisplay();
-		
-		final JTextArea numeryArea = new JTextArea(10, 10);
-		numeryArea.setColumns(3);
-		numeryArea.setBackground(new Color(242, 242, 242));
-		//numeryArea.setRows(5);
-		
-		//numeryArea.setLocation(150, 50);
-		
-		
-		final JTextArea nazwyArea = new JTextArea(10, 10);
-		nazwyArea.setBackground(new Color(242, 242, 242));
-		//nazwyArea.setRows(5);
-		//nazwyArea.setLocation(150, 50);
-		
-		
-		final JTextArea teamyArea = new JTextArea(10, 10);
-		teamyArea.setBackground(new Color(242, 242, 242));
-		//teamyArea.setRows(5);
-		//nazwyArea.setLocation(150, 50);
-		
-		
-		final JTextArea czasyArea = new JTextArea(10, 10);
-		czasyArea.setBackground(new Color(242, 242, 242));
-		czasyArea.setColumns(4);
-		//czasyArea.setRows(5);
-		//nazwyArea.setLocation(150, 50);
-		
-		final JTextArea okrazeniaArea = new JTextArea(10, 10);
-		okrazeniaArea.setBackground(new Color(242, 242, 242));
-		okrazeniaArea.setColumns(4);
-		
+		final DefaultTableModel model = new DefaultTableModel(zawody.getPrzejazdyTable(), columnNames);
+	
+		JTable table = new JTable(model);
 
-		final JButton okButton = new JButton("OK");
-		okButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String tmpNumery="";
-				String tmpNazwy="";
-				String tmpCzasy="";
-				String tmpTeamy="";
-				String tmpOkrazenia="";
-				if(isInteger(numerText.getText())){
-					int a = (int) (new Date().getTime()-startTime)/1000;
-					zawodnik tZaw = z.getZawodnikById(Integer.parseInt(numerText.getText()));
-					z.addPrzejazd(tZaw, a);
-					for(int i=0; i<z.przejazdy.size(); i++){
-						tmpNumery += "\n"+Integer.toString(z.przejazdy.get(i).zawodnik.nr);
-						tmpNazwy += "\n"+z.przejazdy.get(i).zawodnik.imie+" "+z.przejazdy.get(i).zawodnik.nazwisko;
-						tmpTeamy += "\n"+z.przejazdy.get(i).zawodnik.team;
-						tmpCzasy += "\n"+Integer.toString(z.przejazdy.get(i).czas);
-						tmpOkrazenia += "\n"+Integer.toString(z.przejazdy.get(i).okrazenie);
-					}
-					numeryArea.setText(tmpNumery);
-					nazwyArea.setText(tmpNazwy);
-					teamyArea.setText(tmpTeamy);
-					czasyArea.setText(tmpCzasy);
-					okrazeniaArea.setText(tmpOkrazenia);
-					
-				}
-				numerText.setText("");
-				
-			}
-		});
+		
+		
 
 		
 		
 		JPanel topPanelUp = new JPanel();
 		topPanelUp.setLayout(new FlowLayout());
-		topPanelUp.add(numerText);
-		topPanelUp.add(okButton);
+		final JScrollPane scrollPane = new JScrollPane();
+		//topPanelUp.add(numerText);
+		//topPanelUp.add(okButton);
 		
-		int rowsButtons = zawodnicy.size()/12;
+		int rowsButtons = zawody.zawodnicy.size()/12;
 		JPanel topPanelDown = new JPanel();
-		if(zawodnicy.size()<12){ 
+		if(zawody.zawodnicy.size()<12){ 
 			topPanelDown.setLayout(new FlowLayout());
 		}
 		else topPanelDown.setLayout(new GridLayout(rowsButtons, 12));
 		
 		
 		final ArrayList <JButton> buttonsList = new ArrayList<JButton>();
-	
 		
-		for(int i=0; i<zawodnicy.size(); i++){
-			final zawodnik tZaw = zawodnicy.get(i);
-			JButton tmpButton = new JButton(Integer.toString(zawodnicy.get(i).nr));
+		for(int i=0; i<zawody.zawodnicy.size(); i++){
+			final zawodnik tZaw = zawody.zawodnicy.get(i);
+			JButton tmpButton = new JButton(Integer.toString(zawody.zawodnicy.get(i).nr));
 			buttonsList.add(tmpButton);
 			buttonsList.get(i).addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					String tmpNumery="";
-					String tmpNazwy="";
-					String tmpCzasy="";
-					String tmpTeamy="";
-					String tmpOkrazenia="";
-					if(isInteger(buttonsList.get(buttonsList.size()-1).getText())){
-						int a = (int) (new Date().getTime()-startTime)/1000;
-						//zawodnik tZaw = z.getZawodnikById(Integer.parseInt(buttonsList.get(buttonsList.size()-1).getText()));
-						z.addPrzejazd(tZaw, a);
-						for(int i=0; i<z.przejazdy.size(); i++){
-							tmpNumery += "\n"+Integer.toString(z.przejazdy.get(i).zawodnik.nr);
-							tmpNazwy += "\n"+z.przejazdy.get(i).zawodnik.imie+" "+z.przejazdy.get(i).zawodnik.nazwisko;
-							tmpTeamy += "\n"+z.przejazdy.get(i).zawodnik.team;
-							tmpCzasy += "\n"+Integer.toString(z.przejazdy.get(i).czas);
-							tmpOkrazenia += "\n"+Integer.toString(z.przejazdy.get(i).okrazenie);
-						}
-						numeryArea.setText(tmpNumery);
-						nazwyArea.setText(tmpNazwy);
-						teamyArea.setText(tmpTeamy);
-						czasyArea.setText(tmpCzasy);
-						okrazeniaArea.setText(tmpOkrazenia);
-					}
+					//zawodnik tZaw = z.getZawodnikById(Integer.parseInt(buttonsList.get(buttonsList.size()-1).getText()));
+					zawody.addPrzejazd(tZaw);
+					model.addRow(zawody.getLastPrzejazd());
 				}
 			});
 			topPanelDown.add(buttonsList.get(i));
 		}
 		
-
-		
-
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new GridLayout(2, 1));
 		topPanel.add(topPanelUp);
 		topPanel.add(topPanelDown);
+		// Create some data
+		//String dataValues[][] = zawody.getZawodnicyTable();
+		//String dataValues[][] = zawody.getPrzejazdyTable();
 		
-	
-
-		JPanel centerPanel = new JPanel();
-		centerPanel.setLayout(new FlowLayout(20));
-		centerPanel.add(numeryArea);
-		centerPanel.add(nazwyArea);
-		centerPanel.add(teamyArea);
-		centerPanel.add(czasyArea);
-		centerPanel.add(okrazeniaArea);
-		final JScrollPane scroll = new JScrollPane(centerPanel);
+		//scrollPane.add(table)
 		
 		JPanel content = new JPanel();
 		content.setLayout(new BorderLayout(30, 30));
 		content.add(topPanel, BorderLayout.NORTH);
 		//content.add(new JPanel(), BorderLayout.EAST);
-		content.add(scroll, BorderLayout.CENTER);
+		//content.add(scrollPane, BorderLayout.CENTER);
+		content.add(table, BorderLayout.CENTER);
 		//content.add(new JPanel(), BorderLayout.WEST);
 		content.add(new JTextField(3), BorderLayout.SOUTH);
-		//content.add(displayPanel, BorderLayout.CENTER);
-		//content.add(okButton, BorderLayout.SOUTH);
+		
 		
 		JFrame window = new JFrame("GUI Test");
 		window.setContentPane(content);
 		window.setSize(800,600);
 		window.setLocation(100,100);
 		window.setVisible(true);
-	}
 
-	public static boolean isInteger(String s) {
-	    try { 
-	        Integer.parseInt(s); 
-	    } catch(NumberFormatException e) { 
-	        return false; 
-	    }
-	    // only got here if we didn't return false
-	    return true;
-	}
-	
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
