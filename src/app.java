@@ -28,7 +28,10 @@ public class app implements ActionListener{
 	public static void main(String[] args) {
 		final zawody z = new zawody();
 		z.createTables();
-		z.addZawodnik(4, "Michal", "Dabrowski", "Cyklo");
+		z.addZawodnik(4, "Micha³", "D¹browski", "Cyklo Team");
+		z.addZawodnik(5, "Adam", "Œwieca", "Cyklo Team");
+		z.addZawodnik(6, "Marcin", "Superson", "Cyklo Team");
+
 
 		ArrayList<zawodnik> zawodnicy = z.selectZawodnicy();
 		zawodnicy = z.selectZawodnicy();
@@ -47,25 +50,35 @@ public class app implements ActionListener{
 		//appDisplay displayPanel = new appDisplay();
 		
 		final JTextArea numeryArea = new JTextArea(10, 10);
-		numeryArea.setRows(5);
 		numeryArea.setColumns(3);
+		numeryArea.setBackground(new Color(242, 242, 242));
+		//numeryArea.setRows(5);
+		
 		//numeryArea.setLocation(150, 50);
-		numeryArea.setBackground(new Color(200, 200, 150));
+		
 		
 		final JTextArea nazwyArea = new JTextArea(10, 10);
-		nazwyArea.setRows(5);
+		nazwyArea.setBackground(new Color(242, 242, 242));
+		//nazwyArea.setRows(5);
 		//nazwyArea.setLocation(150, 50);
-		nazwyArea.setBackground(new Color(200, 200, 150));
+		
 		
 		final JTextArea teamyArea = new JTextArea(10, 10);
-		teamyArea.setRows(5);
+		teamyArea.setBackground(new Color(242, 242, 242));
+		//teamyArea.setRows(5);
 		//nazwyArea.setLocation(150, 50);
-		teamyArea.setBackground(new Color(200, 200, 150));
+		
 		
 		final JTextArea czasyArea = new JTextArea(10, 10);
-		czasyArea.setRows(5);
+		czasyArea.setBackground(new Color(242, 242, 242));
+		czasyArea.setColumns(4);
+		//czasyArea.setRows(5);
 		//nazwyArea.setLocation(150, 50);
-		czasyArea.setBackground(new Color(200, 200, 150));
+		
+		final JTextArea okrazeniaArea = new JTextArea(10, 10);
+		okrazeniaArea.setBackground(new Color(242, 242, 242));
+		okrazeniaArea.setColumns(4);
+		
 
 		final JButton okButton = new JButton("OK");
 		okButton.addActionListener(new ActionListener() {
@@ -75,6 +88,7 @@ public class app implements ActionListener{
 				String tmpNazwy="";
 				String tmpCzasy="";
 				String tmpTeamy="";
+				String tmpOkrazenia="";
 				if(isInteger(numerText.getText())){
 					int a = (int) (new Date().getTime()-startTime)/1000;
 					zawodnik tZaw = z.getZawodnikById(Integer.parseInt(numerText.getText()));
@@ -84,36 +98,42 @@ public class app implements ActionListener{
 						tmpNazwy += "\n"+z.przejazdy.get(i).zawodnik.imie+" "+z.przejazdy.get(i).zawodnik.nazwisko;
 						tmpTeamy += "\n"+z.przejazdy.get(i).zawodnik.team;
 						tmpCzasy += "\n"+Integer.toString(z.przejazdy.get(i).czas);
+						tmpOkrazenia += "\n"+Integer.toString(z.przejazdy.get(i).okrazenie);
 					}
 					numeryArea.setText(tmpNumery);
 					nazwyArea.setText(tmpNazwy);
 					teamyArea.setText(tmpTeamy);
 					czasyArea.setText(tmpCzasy);
+					okrazeniaArea.setText(tmpOkrazenia);
 					
 				}
 				numerText.setText("");
 				
 			}
 		});
-		//ButtonHandler listener = new ButtonHandler();
 
 		
-		
-
 		
 		JPanel topPanelUp = new JPanel();
 		topPanelUp.setLayout(new FlowLayout());
 		topPanelUp.add(numerText);
 		topPanelUp.add(okButton);
 		
-		int rowsButtons = zawodnicy.size()/12+1;
+		int rowsButtons = zawodnicy.size()/12;
 		JPanel topPanelDown = new JPanel();
-		topPanelDown.setLayout(new GridLayout(rowsButtons, 12));
+		if(zawodnicy.size()<12){ 
+			topPanelDown.setLayout(new FlowLayout());
+		}
+		else topPanelDown.setLayout(new GridLayout(rowsButtons, 12));
+		
+		
 		final ArrayList <JButton> buttonsList = new ArrayList<JButton>();
-		//JButton[] nrButtons = new JButton[zawodnicy.size()];
+	
 		
 		for(int i=0; i<zawodnicy.size(); i++){
-			buttonsList.add(new JButton( Integer.toString(zawodnicy.get(i).nr)));
+			final zawodnik tZaw = zawodnicy.get(i);
+			JButton tmpButton = new JButton(Integer.toString(zawodnicy.get(i).nr));
+			buttonsList.add(tmpButton);
 			buttonsList.get(i).addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -121,20 +141,23 @@ public class app implements ActionListener{
 					String tmpNazwy="";
 					String tmpCzasy="";
 					String tmpTeamy="";
+					String tmpOkrazenia="";
 					if(isInteger(buttonsList.get(buttonsList.size()-1).getText())){
 						int a = (int) (new Date().getTime()-startTime)/1000;
-						zawodnik tZaw = z.getZawodnikById(Integer.parseInt(buttonsList.get(buttonsList.size()-1).getText()));
+						//zawodnik tZaw = z.getZawodnikById(Integer.parseInt(buttonsList.get(buttonsList.size()-1).getText()));
 						z.addPrzejazd(tZaw, a);
 						for(int i=0; i<z.przejazdy.size(); i++){
 							tmpNumery += "\n"+Integer.toString(z.przejazdy.get(i).zawodnik.nr);
 							tmpNazwy += "\n"+z.przejazdy.get(i).zawodnik.imie+" "+z.przejazdy.get(i).zawodnik.nazwisko;
 							tmpTeamy += "\n"+z.przejazdy.get(i).zawodnik.team;
 							tmpCzasy += "\n"+Integer.toString(z.przejazdy.get(i).czas);
+							tmpOkrazenia += "\n"+Integer.toString(z.przejazdy.get(i).okrazenie);
 						}
 						numeryArea.setText(tmpNumery);
 						nazwyArea.setText(tmpNazwy);
 						teamyArea.setText(tmpTeamy);
 						czasyArea.setText(tmpCzasy);
+						okrazeniaArea.setText(tmpOkrazenia);
 					}
 				}
 			});
@@ -149,8 +172,7 @@ public class app implements ActionListener{
 		topPanel.add(topPanelUp);
 		topPanel.add(topPanelDown);
 		
-		
-		
+	
 
 		JPanel centerPanel = new JPanel();
 		centerPanel.setLayout(new FlowLayout(20));
@@ -158,6 +180,7 @@ public class app implements ActionListener{
 		centerPanel.add(nazwyArea);
 		centerPanel.add(teamyArea);
 		centerPanel.add(czasyArea);
+		centerPanel.add(okrazeniaArea);
 		final JScrollPane scroll = new JScrollPane(centerPanel);
 		
 		JPanel content = new JPanel();
@@ -172,7 +195,7 @@ public class app implements ActionListener{
 		
 		JFrame window = new JFrame("GUI Test");
 		window.setContentPane(content);
-		window.setSize(500,500);
+		window.setSize(800,600);
 		window.setLocation(100,100);
 		window.setVisible(true);
 	}

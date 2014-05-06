@@ -50,8 +50,10 @@ public class zawody {
 	
 	boolean addPrzejazd(zawodnik zawodnik, int czas){
 		try{
-			przejazdy.add(new przejazd(zawodnik, czas));
-			if(!insertPrzejazd(zawodnik.nr, czas)) System.out.close();
+			//int okrazenie = selectIleOkrazen(zawodnik)+1;
+			int okrazenie = getOkrazenia(zawodnik);
+			przejazdy.add(new przejazd(zawodnik, czas, okrazenie+1));
+			insertPrzejazd(zawodnik.nr, czas, okrazenie+1);
 			return true;
 		}
 		catch(Exception e){
@@ -67,7 +69,15 @@ public class zawody {
 		return null;
 	}
 	
+	public int getOkrazenia(zawodnik zawodnik){
+		for(int i=przejazdy.size()-1; i>=0; i--){
+			if(przejazdy.get(i).zawodnik.nr==zawodnik.nr) return przejazdy.get(i).okrazenie;
+		}
+		return 0;
+	}
+	
 	boolean createTables(){
+		
 		String createZawodnicy = 
 				"CREATE TABLE IF NOT EXISTS zawodnicy ("
 				+ "nr int PRIMARY KEY,"
@@ -78,7 +88,8 @@ public class zawody {
 		String createPrzejazdy = 
 				"CREATE TABLE IF NOT EXISTS przejazdy ("
 				+ "nr int not null,"
-				+ "czas int not null," 
+				+ "czas int not null,"
+				+ "okrazenie int not null DEFAULT 1,"
 				+ "FOREIGN KEY (nr) REFERENCES zawodnicy(nr) )";
 		
 		try {
@@ -116,14 +127,15 @@ public class zawody {
 		}
 	}
 	
-	boolean insertPrzejazd(int nr, int czas){
+	boolean insertPrzejazd(int nr, int czas, int okrazenie){
 		String InsertPrzejazd = "INSTERT INTO 'przejazdy' VALUES"
 				+ " ("+nr+", "+czas+")";
 		try {
 			 PreparedStatement prepStmt = conn.prepareStatement(
-					 "insert into przejazdy values (?, ?);");
+					 "insert into przejazdy values (?, ?, ?);");
 			 prepStmt.setInt(1, nr);
 			 prepStmt.setInt(2, czas);
+			 prepStmt.setInt(3, okrazenie);
 			 prepStmt.execute();
 			 return true;
 		}		
@@ -138,9 +150,9 @@ public class zawody {
 	public ArrayList<przejazd> selectPrzejazdy(){
 		ArrayList<przejazd> lista = new ArrayList<przejazd>();
 		try{
-			ResultSet result = stat.executeQuery("Select nr, imie, nazwisko, team, czas FROM zawodnicy, przejazdy WHERE nr.przejazdy=nr.zawodnicy");
+			ResultSet result = stat.executeQuery("Select nr, imie, nazwisko, team, czas, okrazenie FROM zawodnicy, przejazdy WHERE przejazdy.nr=zawodnicy.nr");
 			while(result.next()){
-				lista.add(new przejazd(new zawodnik(result.getInt("nr"), result.getString("imie"), result.getString("nazwisko"), result.getString("team")), result.getInt("czas")));
+				lista.add(new przejazd(new zawodnik(result.getInt("nr"), result.getString("imie"), result.getString("nazwisko"), result.getString("team")), result.getInt("czas"), result.getInt("okrazenie")));
 			}
 			return lista;
 		}
@@ -150,6 +162,20 @@ public class zawody {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public int selectIleOkrazen(zawodnik zawodnik){
+		try{
+			ResultSet result = stat.executeQuery("Select okrazenie FROM przejazdy, zawodnicy WHERE przejazdy.nr=zawodnicy.nr AND zawodnicy.nr="+zawodnik.nr);
+			return result.getInt("okrazenie");
+		}
+		catch(SQLException e){
+			e.getMessage();
+			System.out.println("b³¹d zapytaniakurwakruwa");
+			e.printStackTrace();
+			return 0;
+		}
+
 	}
 	
 	public ArrayList<zawodnik> selectZawodnicy(){
