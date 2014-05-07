@@ -16,33 +16,41 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.StyleConstants.FontConstants;
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+
+
+
 
 
 public class app {
-
-	private static class display extends JPanel {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
-		public void paintComponent(Graphics g) {
-			super.paintComponent(g);
-			g.drawString( "Hello World!", 0 , 0);
-		}
+	public static void main(String[] args) {
+        /*SwingUtilities.invokeLater(new Runnable(){
+            @Override
+            public void run() {
+            	show();
+            }
+        });*/
+		show();
+		
 	}
 	
-	public static void main(String[] args) {
-
-
+	final static zawody zawody = new zawody();
+	final static String columnNames[] = { "nr", "imie", "nazwisko", "team", "czas", "lap"};
+	
+	static void init(){
 		
-		final zawody zawody = new zawody();
-		zawody.addZawodnik(110, "Micha³", "D¹browski", "Cyklo Team");
-		zawody.addZawodnik(26, "Micha³", "Rzeczycki", "Old School MTB Team");
-		zawody.addZawodnik(1, "Bartosz", "Banach", "Hotel 4 Brzozy");
 		zawody.addZawodnik(2, "Robert", "Banach", "Hotel 4 Brzozy");
+		zawody.addZawodnik(1, "Bartosz", "Banach", "Hotel 4 Brzozy");
+	
+		zawody.addZawodnik(26, "Micha³", "Rzeczycki", "Old School MTB Team");
+		
+		zawody.addZawodnik(110, "Micha³", "D¹browski", "Cyklo Team");
 		zawody.addZawodnik(3, "Krzysztof", "Witek", "Nexus Team");
 		zawody.addZawodnik(5, "Mateusz", "Tygielski", "Nexus Team");
 		zawody.addZawodnik(45, "Tomasz", "Juchniewicz", "Renault Eco 2 Team");
@@ -53,9 +61,11 @@ public class app {
 		zawody.addZawodnik(132, "Piotr", "Habaj", "GR3miasto");
 		zawody.addZawodnik(23, "Marcin", "Leszczyñski", "");
 		zawody.addZawodnik(27, "Patryk", "Sala", "");
-		final String columnNames[] = { "nr", "imie", "nazwisko", "team", "czas", "lap"};
-
-		//String[][] lista = zawody.getZawodnicyTable();
+	}
+	static final int val=0;
+	
+	public static void show() {
+		init();
 		
 		final DefaultTableModel model = new DefaultTableModel(zawody.getPrzejazdyTable(), columnNames);
 		final DefaultTableModel modelSort = new DefaultTableModel(zawody.getWynikiTable(), columnNames);
@@ -73,6 +83,42 @@ public class app {
 		
 		JPanel topPanelUp = new JPanel();
 		topPanelUp.setLayout(new FlowLayout());
+		final JLabel labelTime = new JLabel();
+		JButton startButton = new JButton("start");
+		startButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				zawody.restart();
+				
+			}
+		});
+		topPanelUp.add(startButton);			
+		topPanelUp.add(JTimerLabel.getInstance());
+		/*
+        Timer t = new Timer(100, new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int val = Integer.valueOf(JTimerLabel.getInstance().getText());
+                JTimerLabel.getInstance().setText(String.valueOf(++val));
+                b.setText(String.valueOf(++val));
+            }
+        });
+        t.start();
+        */
+        Timer t = new Timer(100, new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+                String val = JTimerLabel.getInstance().getText();
+                JTimerLabel.getInstance().setText(zawody.getTimeToString());
+                labelTime.setText(String.valueOf(val));
+				
+			}
+        	
+        });
+        t.start();
+		
 		
 		final JScrollPane scroll = new JScrollPane(table);
 		final JScrollPane scrollSort = new JScrollPane(tableSort);
@@ -99,11 +145,15 @@ public class app {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					zawody.addPrzejazd(tZaw);
+					while(model.getRowCount()>0){
+						model.removeRow(0);
+					}
+					model.setDataVector(zawody.getPrzejazdyTable(), columnNames);
 					while(modelSort.getRowCount()>0){
 						modelSort.removeRow(0);
 					}
 					modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
-					model.addRow(zawody.getLastPrzejazd());
+					
 				}
 			});
 			topPanelDown.add(buttonsList.get(i));
@@ -129,12 +179,28 @@ public class app {
 		
 		
 		JFrame window = new JFrame("GUI Test");
-		
 		window.setContentPane(content);
 		window.setSize(800,600);
 		window.setLocation(100,100);
 		window.setVisible(true);
 
 	}
+	
+    private static final class JTimerLabel extends JLabel{
+        private static JTimerLabel INSTANCE;
+
+        private JTimerLabel(){
+            super(String.valueOf(0));
+            setFont(new Font("Courier New", Font.BOLD,  18));
+        }
+
+        public static final JTimerLabel getInstance(){
+            if(INSTANCE == null){
+                INSTANCE = new JTimerLabel();
+            }
+
+            return INSTANCE;
+        }
+    }
 
 }

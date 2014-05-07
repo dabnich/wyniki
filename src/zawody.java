@@ -24,24 +24,54 @@ public class zawody {
 		startTime = czas.getTime();
 	}
 	
+	void restart(){
+		Date czas = new Date();
+		startTime = czas.getTime();
+	}
+	
+	int getTime(){
+		return (int)(new Date().getTime()-startTime);
+	}
+	
+	public String getTimeToString(){
+		SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+		TimeZone zone = TimeZone.getTimeZone("GMT-0");
+		format.setTimeZone(zone);
+		return format.format(new Date().getTime()-startTime);
+	}
+	
 	boolean addZawodnik(int nr, String imie, String nazwisko, String team){
 		try{
 			//zawodnicy.add(new zawodnik(nr, imie, nazwisko, team));
 			int startI=0;
+			boolean breakLoop = false;
 			for(int i=0; i<zawodnicy.size(); i++){
 				startI=i;
 				if(nr==zawodnicy.get(i).nr) return false; //kontrola czy nr juz istnieje
-				if(nr < zawodnicy.get(i).nr) break;
+				if(nr < zawodnicy.get(i).nr){ 
+					breakLoop = true;
+					break;
+				}
 			}
 			ArrayList <zawodnik> zawodnicyTmp = new ArrayList<zawodnik>();
+			//if(!breakLoop) startI+=1;
 			if(startI>0){
-				for(int i=0; i<startI; i++){
-					zawodnicyTmp.add(zawodnicy.get(i));
+				if(breakLoop){  
+					for(int i=0; i<startI; i++){
+						zawodnicyTmp.add(zawodnicy.get(i));
+					}
+					zawodnicyTmp.add(new zawodnik(nr, imie, nazwisko, team));
+					for(int i=startI; i<zawodnicy.size(); i++){
+						zawodnicyTmp.add(zawodnicy.get(i));
+					}
 				}
-				zawodnicyTmp.add(new zawodnik(nr, imie, nazwisko, team));
-				for(int i=startI; i<zawodnicy.size(); i++){
-					zawodnicyTmp.add(zawodnicy.get(i));
+				else{
+					for(int i=0; i<zawodnicy.size(); i++){
+						zawodnicyTmp.add(zawodnicy.get(i));
+					}
+					zawodnicyTmp.add(new zawodnik(nr, imie, nazwisko, team));
 				}
+
 			}
 			else{
 				zawodnicyTmp.add(new zawodnik(nr, imie, nazwisko, team));
@@ -67,10 +97,12 @@ public class zawody {
 			przejazdy.add(new przejazd(zawodnik, czas, okrazenie));
 			
 			//dodajemy wynik, wyszukiwanie odpowiedniego miejsca dla wyniku
+			boolean breakLoop = false;
 			int startI=0;
 			for(int i=0; i<wyniki.size(); i++){
 				startI = i;
 				if(okrazenie > wyniki.get(i).okrazenie){
+					breakLoop = true;
 					break;
 				}
 			}
@@ -78,12 +110,20 @@ public class zawody {
 			ArrayList <przejazd> wynikiTmp = new ArrayList<przejazd>();
 			
 			if(startI>0){
-				for(int i=0; i<startI; i++){
-					wynikiTmp.add(wyniki.get(i));
+				if(breakLoop){
+					for(int i=0; i<startI; i++){
+						wynikiTmp.add(wyniki.get(i));
+					}
+					wynikiTmp.add(new przejazd(zawodnik, czas, okrazenie));
+					for(int i=startI; i<wyniki.size(); i++){
+						if(zawodnik.nr != wyniki.get(i).zawodnik.nr) wynikiTmp.add(wyniki.get(i));
+					}
 				}
-				wynikiTmp.add(new przejazd(zawodnik, czas, okrazenie));
-				for(int i=startI; i<wyniki.size(); i++){
-					if(zawodnik.nr != wyniki.get(i).zawodnik.nr) wynikiTmp.add(wyniki.get(i));
+				else{
+					for(int i=0; i<wyniki.size(); i++){
+						wynikiTmp.add(wyniki.get(i));
+					}
+					wynikiTmp.add(new przejazd(zawodnik, czas, okrazenie));
 				}
 			}
 			else{
@@ -118,15 +158,21 @@ public class zawody {
 	
 	public String[][] getPrzejazdyTable(){
 		String[][] table = new String[przejazdy.size()][6];
-		for(int i=0; i<przejazdy.size(); i++){
+		int n=0;
+		for(int i=przejazdy.size()-1; i>=0; i--){
 			String nr, imie, nazwisko, team, czas, okrazenie;
 			nr = Integer.toString(przejazdy.get(i).zawodnik.nr);
 			imie = przejazdy.get(i).zawodnik.imie;
 			nazwisko = przejazdy.get(i).zawodnik.nazwisko;
 			team = przejazdy.get(i).zawodnik.team;
-			czas = Integer.toString(przejazdy.get(i).czas);
+			SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+			TimeZone zone = TimeZone.getTimeZone("GMT-0");
+			format.setTimeZone(zone);
+			czas = format.format(przejazdy.get(i).czas);
+			//format.setTimeZone("GMT-1");
+			czas = format.format(przejazdy.get(i).czas);
 			okrazenie = Integer.toString(przejazdy.get(i).okrazenie);
-			table[i] = new String[] {nr, imie, nazwisko, team, czas, okrazenie};
+			table[n++] = new String[] {nr, imie, nazwisko, team, czas, okrazenie};
 		}
 		return table;
 	}
