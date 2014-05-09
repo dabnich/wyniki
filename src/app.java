@@ -1,21 +1,27 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
@@ -29,6 +35,7 @@ import javax.swing.Timer;
 
 
 public class app {
+	
 	public static void main(String[] args) {
         /*SwingUtilities.invokeLater(new Runnable(){
             @Override
@@ -36,15 +43,94 @@ public class app {
             	show();
             }
         });*/
+		
+
+		//userPanel();
 		show();
 		
 	}
 	
+
+	
 	final static zawody zawody = new zawody();
-	final static String columnNames[] = { "nr", "imie", "nazwisko", "team", "czas", "lap"};
+	final static String columnNames[] = { "nr", "imie", "nazwisko", "team", "czas", "lap", "poz"};
+	
+	
+	static void userPanel(){
+		
+		JPanel panel = new JPanel();
+		//panel.setLayout(new SpringLayout());
+		
+		JPanel addForm = new JPanel();
+		JPanel addPanel = new JPanel();
+		addForm.setLayout(new GridLayout(2,6, 10, 10));
+		final JPanel explore = new JPanel();
+		
+		JLabel labelNr = new JLabel("numer");
+		JLabel labelImie = new JLabel("imie");
+		JLabel labelNazwisko = new JLabel("nazwisko");
+		JLabel labelRok = new JLabel("rok urodzenia");
+		JLabel labelTeam = new JLabel("team");
+		
+		final JTextField buttonNr = new JTextField();
+		final JTextField buttonImie = new JTextField();
+		final JTextField buttonNazwisko = new JTextField();
+		JTextField buttonRok = new JTextField();
+		final JTextField buttonTeam = new JTextField();
+		
+		JButton addButton = new JButton("zapisz");
+		addButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try{
+					zawody.addZawodnik(Integer.parseInt(buttonNr.getText()), buttonImie.getText(), buttonNazwisko.getText(), buttonTeam.getText());
+					explore.add(new JLabel(Integer.toString(zawody.zawodnicy.get(zawody.zawodnicy.size()).nr)));
+					explore.add(new JLabel(zawody.zawodnicy.get(zawody.zawodnicy.size()).imie));
+					explore.add(new JLabel(zawody.zawodnicy.get(zawody.zawodnicy.size()).nazwisko));					
+					explore.add(new JLabel(zawody.zawodnicy.get(zawody.zawodnicy.size()).team));				
+				System.out.print(zawody.zawodnicy.get(0).imie);	
+				}
+				catch(Exception a){
+					a.getMessage();
+				}
+			}
+		});
+		
+		addForm.add(labelNr);
+		addForm.add(labelImie);
+		addForm.add(labelNazwisko);
+		addForm.add(labelRok);
+		addForm.add(labelTeam);
+		addForm.add(new JLabel());
+		addForm.add(buttonNr);
+		addForm.add(buttonImie);
+		addForm.add(buttonNazwisko);
+		addForm.add(buttonRok);
+		addForm.add(buttonTeam);
+		addForm.add(addButton);
+		panel.add(addForm);
+		panel.add(explore);
+		
+		JFrame frame = new JFrame("userPanel");
+		frame.setContentPane(panel);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		frame.setVisible(true);
+		
+	}
 	
 	static void init(){
+		System.out.print(new Date().toLocaleString());
+		csv plik = new csv("txt.txt");
+		ArrayList<ArrayList<String>> listaCsv = plik.getToList();
+		for(int i=0; i<listaCsv.size(); i++){
+			zawody.addZawodnik(listaCsv.get(i));
+		}
+
 		
+		
+		
+		
+		/*
 		zawody.addZawodnik(2, "Robert", "Banach", "Hotel 4 Brzozy");
 		zawody.addZawodnik(1, "Bartosz", "Banach", "Hotel 4 Brzozy");
 	
@@ -61,78 +147,150 @@ public class app {
 		zawody.addZawodnik(132, "Piotr", "Habaj", "GR3miasto");
 		zawody.addZawodnik(23, "Marcin", "Leszczyñski", "");
 		zawody.addZawodnik(27, "Patryk", "Sala", "");
+		*/
 	}
 	static final int val=0;
 	
 	public static void show() {
 		init();
-		
+		final csv przejazdyOut = new csv("przejazdy__"+zawody.pomiar.getDateStart()+".txt");
 		final DefaultTableModel model = new DefaultTableModel(zawody.getPrzejazdyTable(), columnNames);
 		final DefaultTableModel modelSort = new DefaultTableModel(zawody.getWynikiTable(), columnNames);
 		
 		
 		JTable table = new JTable(model);
 		JTable tableSort = new JTable(modelSort);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		table.getColumnModel().getColumn(0).setPreferredWidth(40);
-		table.getColumnModel().getColumn(1).setPreferredWidth(120);
-		table.getColumnModel().getColumn(2).setPreferredWidth(120);
-		table.getColumnModel().getColumn(3).setPreferredWidth(120);
-		table.getColumnModel().getColumn(5).setPreferredWidth(40);
-		//table.getColumnModel().getColumn(3).setWidth(30);
 		
-		JPanel topPanelUp = new JPanel();
-		topPanelUp.setLayout(new FlowLayout());
+		Dimension tableSize = table.getPreferredSize();
+		
+		//table.setPreferredSize(new Dimension(200, 100));
+		System.out.print(tableSize.width);
+		table.getColumnModel().getColumn(0).setPreferredWidth(10);
+		table.getColumnModel().getColumn(1).setPreferredWidth(10);
+		table.getColumnModel().getColumn(2).setPreferredWidth(10);
+		table.getColumnModel().getColumn(3).setPreferredWidth(10);
+		table.getColumnModel().getColumn(5).setPreferredWidth(10);
+		//table.getColumnModel().getColumn(3).setWidth(30);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+		JPanel controlPanel = new JPanel();
+		controlPanel.setLayout(new FlowLayout());
 		final JLabel labelTime = new JLabel();
+		
 		JButton startButton = new JButton("start");
 		startButton.addActionListener(new ActionListener() {
-			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				zawody.restart();
+				zawody.startuj();
 				
 			}
 		});
-		topPanelUp.add(startButton);			
-		topPanelUp.add(JTimerLabel.getInstance());
-		/*
-        Timer t = new Timer(100, new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int val = Integer.valueOf(JTimerLabel.getInstance().getText());
-                JTimerLabel.getInstance().setText(String.valueOf(++val));
-                b.setText(String.valueOf(++val));
-            }
-        });
-        t.start();
-        */
-        Timer t = new Timer(100, new ActionListener(){
-
+		controlPanel.add(startButton);
+		
+		JButton stopButton = new JButton("stop");
+		stopButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-                String val = JTimerLabel.getInstance().getText();
-                JTimerLabel.getInstance().setText(zawody.getTimeToString());
-                labelTime.setText(String.valueOf(val));
-				
+				zawody.zatrzymaj();
 			}
-        	
-        });
-        t.start();
+		});
+		controlPanel.add(stopButton);
 		
+		JButton resetButton = new JButton("reset");
+		resetButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				zawody.resetuj();
+			}
+			
+		});
+		controlPanel.add(resetButton);
 		
-		final JScrollPane scroll = new JScrollPane(table);
-		final JScrollPane scrollSort = new JScrollPane(tableSort);
+		controlPanel.add(JTimerLabel.getInstance());
+
+        final JTextField nrText = new JTextField(3);
+        nrText.requestFocus();
+		final JButton buttonText = new JButton("Dodaj przejazd");
+		buttonText.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try{
+					int nr = Integer.parseInt(nrText.getText());
+					if(zawody.getZawodnikById(nr) != null){
+						ArrayList<String> listPrzejazd = zawody.addPrzejazd(zawody.getZawodnikById(nr));
+						przejazdyOut.writeLine(listPrzejazd);
+						while(model.getRowCount()>0){
+							model.removeRow(0);
+						}
+						model.setDataVector(zawody.getPrzejazdyTable(), columnNames);
+						while(modelSort.getRowCount()>0){
+							modelSort.removeRow(0);
+						}
+						modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
+					}
+					nrText.setText("");
+				}
+				catch(Exception ex){
+					ex.getMessage();
+				}
+			}
+		});
 		
-		//topPanelUp.add(numerText);
-		//topPanelUp.add(okButton);
+		nrText.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode()==10){
+					try{
+						int nr = Integer.parseInt(nrText.getText());
+						if(zawody.getZawodnikById(nr) != null){
+							ArrayList<String> listPrzejazd = zawody.addPrzejazd(zawody.getZawodnikById(nr));
+							przejazdyOut.writeLine(listPrzejazd);
+							while(model.getRowCount()>0){
+								model.removeRow(0);
+							}
+							model.setDataVector(zawody.getPrzejazdyTable(), columnNames);
+							while(modelSort.getRowCount()>0){
+								modelSort.removeRow(0);
+							}
+							modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
+						}
+						nrText.setText("");
+					}
+					catch(Exception ex){
+						ex.getMessage();
+					}
+				}
+			}
+		});
 		
-		int rowsButtons = zawody.zawodnicy.size()/15+1;
+		JButton backButton = new JButton("cofnij");
+		backButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				zawody.deleteLastPrzejazd();
+				while(model.getRowCount()>0){
+					model.removeRow(0);
+				}
+				model.setDataVector(zawody.getPrzejazdyTable(), columnNames);
+				while(modelSort.getRowCount()>0){
+					modelSort.removeRow(0);
+				}
+				modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
+			}
+		});
+
+        int rowsButtons = zawody.zawodnicy.size()/15+1;
 		JPanel topPanelDown = new JPanel();
 		if(zawody.zawodnicy.size()<15){ 
 			topPanelDown.setLayout(new FlowLayout());
 		}
 		else topPanelDown.setLayout(new GridLayout(rowsButtons, 12));
-		
 		
 		final ArrayList <JButton> buttonsList = new ArrayList<JButton>();
 		
@@ -144,7 +302,8 @@ public class app {
 			buttonsList.get(i).addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					zawody.addPrzejazd(tZaw);
+					ArrayList<String> listPrzejazd = zawody.addPrzejazd(tZaw);
+					przejazdyOut.writeLine(listPrzejazd);
 					while(model.getRowCount()>0){
 						model.removeRow(0);
 					}
@@ -153,12 +312,30 @@ public class app {
 						modelSort.removeRow(0);
 					}
 					modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
-					
 				}
 			});
 			topPanelDown.add(buttonsList.get(i));
 		}
 		
+		Timer t = new Timer(100, new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+                String val = JTimerLabel.getInstance().getText();
+                JTimerLabel.getInstance().setText(zawody.getTimeToString());
+                labelTime.setText(String.valueOf(val));
+                nrText.requestFocus();
+				
+			}
+        	
+        });
+        t.start();
+		
+		
+        JPanel topPanelUp = new JPanel();
+        topPanelUp.add(nrText);
+        topPanelUp.add(buttonText);
+        topPanelUp.add(backButton);
 		JPanel topPanel = new JPanel();
 		
 		topPanel.setLayout(new GridLayout(2, 1));
@@ -166,6 +343,8 @@ public class app {
 		topPanel.add(topPanelDown);
 		
 		JPanel centerPanel = new JPanel(new GridLayout(1, 2));
+		final JScrollPane scroll = new JScrollPane(table);
+		final JScrollPane scrollSort = new JScrollPane(tableSort);
 		centerPanel.add(scroll);
 		centerPanel.add(scrollSort);
 		
@@ -175,14 +354,20 @@ public class app {
 		//content.add(new JPanel(), BorderLayout.EAST);
 		content.add(centerPanel, BorderLayout.CENTER);
 		//content.add(new JPanel(), BorderLayout.WEST);
-		//content.add(display, BorderLayout.SOUTH);
+		content.add(controlPanel, BorderLayout.SOUTH);
 		
 		
 		JFrame window = new JFrame("GUI Test");
 		window.setContentPane(content);
+		/*
 		window.setSize(800,600);
 		window.setLocation(100,100);
+		*/
+		window.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		window.setVisible(true);
+		
+		
+
 
 	}
 	
