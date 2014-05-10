@@ -17,6 +17,7 @@ public class zawody {
 	ArrayList <przejazd> przejazdy = new ArrayList <przejazd>();
 	ArrayList <przejazd> wyniki = new ArrayList<przejazd>();
 	pomiar pomiar;
+	csv plik;
 
 	// 0 - pomiar nie wystartowal
 	// 1 - pomiar wstrzymany, ale wczesniej wystartowal
@@ -26,6 +27,12 @@ public class zawody {
 	public zawody(){
 		pomiar = new pomiar();
 	}
+	
+	public void ustawCSV(String nazwaPliku){
+		plik = new csv(nazwaPliku);
+	}
+	
+	
 	
 	void startuj(){
 		pomiar.startuj();
@@ -94,6 +101,19 @@ public class zawody {
 			e.getMessage();
 			return false;
 		}
+	}
+	
+	int zawodnicyZpliku(String plik){
+		csv plikZawodnicy = new csv(plik);
+		ArrayList<ArrayList<String>> listaZawodnicy = new ArrayList<ArrayList<String>>();
+		listaZawodnicy = plikZawodnicy.getToList();
+		if(listaZawodnicy==null) return 0;
+		int size=0;
+		for(int i=0; i<listaZawodnicy.size(); i++){
+			if(addZawodnik(listaZawodnicy.get(i))) size++;
+		}
+		return size;
+		
 	}
 	
 	boolean addZawodnik(ArrayList<String> list){
@@ -227,14 +247,24 @@ public class zawody {
 			lista.add(Integer.toString(zawodnik.nr));
 			lista.add(zawodnik.imie);
 			lista.add(zawodnik.nazwisko);
+			lista.add(zawodnik.team);
 			lista.add(Integer.toString(okrazenie));
 			lista.add(Integer.toString(poz));
+			dodajPrzejazdCSV(lista);
 			return lista;
 		}
 		catch(Exception e){
 			e.getMessage();
 			return null;
 		}
+	}
+	
+	boolean dodajPrzejazdCSV(ArrayList<String> listPrzejazd){
+		if(plik.file!=null){
+			if(plik.writeLine(listPrzejazd)) return true;
+			return false;
+		}
+		return false;
 	}
 	
 	private int addWynik(przejazd przejazd){

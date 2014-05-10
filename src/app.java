@@ -11,11 +11,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -31,9 +34,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 
-
-
-
 public class app {
 	
 	public static void main(String[] args) {
@@ -46,11 +46,51 @@ public class app {
 		
 
 		//userPanel();
-		show();
+		wyborPliku();
+		
+		//show();
+		
+	}
+	static String plik = null;
+	
+
+	public static void wyborPliku(){
+		
+		JPanel panel = new JPanel();
+		final JFrame frame = new JFrame("userPanel");
+		
+		final JFileChooser fileCh = new JFileChooser();
+		fileCh.setCurrentDirectory(new File("C:/"));
+		fileCh.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//System.out.print(e.getSource().toString());
+				File pl = fileCh.getSelectedFile();
+				if(pl.toString().length()>0){
+					zawody.zawodnicyZpliku(pl.toString());
+					System.out.println(pl.getName());
+					
+					show();
+				}
+				frame.removeAll();
+				frame.setVisible(false);
+				
+			}
+		});
+		
+		panel.add(fileCh);
+		
+		frame.setContentPane(panel);
+		//frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		frame.setSize(700,500);
+		frame.setVisible(true);
+		
+		
 		
 	}
 	
-
+	
 	
 	final static zawody zawody = new zawody();
 	final static String columnNames[] = { "nr", "imie", "nazwisko", "team", "czas", "lap", "poz"};
@@ -119,13 +159,12 @@ public class app {
 	}
 	
 	static void init(){
+		zawody.ustawCSV("przejazdy__"+zawody.pomiar.getDateStart()+".txt");
+		//zawody.zawodnicyZpliku("zawodnicy.txt");
 		System.out.print(new Date().toLocaleString());
-		csv plik = new csv("txt.txt");
-		ArrayList<ArrayList<String>> listaCsv = plik.getToList();
-		for(int i=0; i<listaCsv.size(); i++){
-			zawody.addZawodnik(listaCsv.get(i));
-		}
 
+		
+	
 		
 		
 		
@@ -153,7 +192,7 @@ public class app {
 	
 	public static void show() {
 		init();
-		final csv przejazdyOut = new csv("przejazdy__"+zawody.pomiar.getDateStart()+".txt");
+		
 		final DefaultTableModel model = new DefaultTableModel(zawody.getPrzejazdyTable(), columnNames);
 		final DefaultTableModel modelSort = new DefaultTableModel(zawody.getWynikiTable(), columnNames);
 		
@@ -217,8 +256,8 @@ public class app {
 				try{
 					int nr = Integer.parseInt(nrText.getText());
 					if(zawody.getZawodnikById(nr) != null){
-						ArrayList<String> listPrzejazd = zawody.addPrzejazd(zawody.getZawodnikById(nr));
-						przejazdyOut.writeLine(listPrzejazd);
+						zawody.addPrzejazd(zawody.getZawodnikById(nr));
+						
 						while(model.getRowCount()>0){
 							model.removeRow(0);
 						}
@@ -249,8 +288,8 @@ public class app {
 					try{
 						int nr = Integer.parseInt(nrText.getText());
 						if(zawody.getZawodnikById(nr) != null){
-							ArrayList<String> listPrzejazd = zawody.addPrzejazd(zawody.getZawodnikById(nr));
-							przejazdyOut.writeLine(listPrzejazd);
+							zawody.addPrzejazd(zawody.getZawodnikById(nr));
+							
 							while(model.getRowCount()>0){
 								model.removeRow(0);
 							}
@@ -302,8 +341,8 @@ public class app {
 			buttonsList.get(i).addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					ArrayList<String> listPrzejazd = zawody.addPrzejazd(tZaw);
-					przejazdyOut.writeLine(listPrzejazd);
+					zawody.addPrzejazd(tZaw);
+					
 					while(model.getRowCount()>0){
 						model.removeRow(0);
 					}

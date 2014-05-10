@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 
 public class csv {
-	String file;
+	String file=null;
 	
 	public csv(String file){
 		this.file = file;
@@ -105,13 +105,14 @@ public class csv {
 			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f, true)));
 			//OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(f));
 			
-
+		
 			for(int i=0; i<lista.size(); i++){
 				
 				if(i<lista.size()-1)
 					writer.write(lista.get(i)+",");
 				else
 					writer.write(lista.get(i));
+				
 				//writer.newLine();
 			}
 			writer.newLine();
