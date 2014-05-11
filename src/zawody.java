@@ -16,6 +16,7 @@ public class zawody {
 	ArrayList <zawodnik> zawodnicy = new ArrayList <zawodnik>();
 	ArrayList <przejazd> przejazdy = new ArrayList <przejazd>();
 	ArrayList <przejazd> wyniki = new ArrayList<przejazd>();
+	ArrayList <okrazenie> okrazenia = new ArrayList<okrazenie>();
 	pomiar pomiar;
 	csv plik;
 
@@ -52,6 +53,13 @@ public class zawody {
 	
 	public String getTimeToString(){
 		return pomiar.getString();
+	}
+	
+	private String timeToString(int time){
+		SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+		TimeZone zone = TimeZone.getTimeZone("GMT-0");
+		format.setTimeZone(zone);
+		return format.format(time);
 	}
 	
 	boolean addZawodnik(int nr, String imie, String nazwisko, String team){
@@ -202,7 +210,7 @@ public class zawody {
 						wynikiTmp.add(tmpWynik);
 						nPoz++;
 					}
-					wynikiTmp.add(new przejazd(zawodnik, czas, okrazenie, nPoz));
+					wynikiTmp.add(new przejazd(zawodnik, czas, nPoz, okrazenie));
 					poz = nPoz;
 					nPoz++;
 					for(int i=startI; i<wyniki.size(); i++){
@@ -222,12 +230,12 @@ public class zawody {
 						nPoz++;
 					}
 
-					wynikiTmp.add(new przejazd(zawodnik, czas, okrazenie, nPoz));
+					wynikiTmp.add(new przejazd(zawodnik, czas, nPoz, okrazenie));
 					poz = nPoz;
 				}
 			}
 			else{
-				wynikiTmp.add(new przejazd(zawodnik, czas, okrazenie, nPoz));
+				wynikiTmp.add(new przejazd(zawodnik, czas, nPoz, okrazenie));
 				poz = nPoz;
 				nPoz++;
 				for(int i=startI; i<wyniki.size(); i++){
@@ -240,7 +248,21 @@ public class zawody {
 				}
 			}
 			wyniki = wynikiTmp;
-			przejazdy.add(new przejazd(zawodnik, czas, okrazenie, poz));
+			przejazdy.add(new przejazd(zawodnik, czas, poz, okrazenie));
+			
+			int czasOkr=czas;
+			if(okrazenie>1){
+				for(int i=przejazdy.size()-2; i>=0; i--){
+					if(przejazdy.get(i).zawodnik.nr==zawodnik.nr){ 
+						czasOkr=czas-przejazdy.get(i).czas;
+						break;
+					}
+				}
+				
+			}
+			okrazenia.add(new okrazenie(zawodnik, okrazenie, czasOkr, przejazdy.size()-1));
+			System.out.println(okrazenia.get(okrazenia.size()-1).czas);
+			
 			//return true;
 			ArrayList<String> lista = new ArrayList<String>();
 			lista.add(Integer.toString(czas));
@@ -257,6 +279,31 @@ public class zawody {
 			e.getMessage();
 			return null;
 		}
+	}
+	
+	boolean exportWyniki(){
+		String html=null;
+		html += "<table>";
+		for(int i=0; i<wyniki.size(); i++){
+			html += "<tr>";
+			html += "<td>"+Integer.toString(wyniki.get(i).pozycja)+"</td>";
+			html += "<td>"+Integer.toString(wyniki.get(i).zawodnik.nr)+"</td>";
+			html += "<td>"+wyniki.get(i).zawodnik.imie+"</td>";
+			html += "<td>"+wyniki.get(i).zawodnik.nazwisko+"</td>";
+			html += "<td>"+wyniki.get(i).zawodnik.team+"</td>";
+			html += "<td>";
+			for(int n=0; n<przejazdy.size(); n++){
+				if(przejazdy.get(n).zawodnik.nr==wyniki.get(i).zawodnik.nr){
+					html += "<br>"+timeToString(przejazdy.get(n).czas);
+				}
+			}
+			html += "</td>";
+			html += "<td>"+wyniki.get(i).okrazenie+"</td>";
+			html += "</tr>";
+		}
+		html += "</table>";
+		if(new csv("wyniki__"+pomiar.getDateStart()+".txt").write(html)) return true;
+		return false;
 	}
 	
 	boolean dodajPrzejazdCSV(ArrayList<String> listPrzejazd){

@@ -126,4 +126,25 @@ public class csv {
 		}
 		
 	}
+	
+	boolean write(String txt){
+		File f = new File(file);
+		BufferedWriter writer;
+		try {
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f, true)));
+			//OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(f));
+			
+		
+			writer.write(txt);
+			writer.newLine();
+			writer.close();
+			System.out.println("ok");
+			return true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		
+	}
 }

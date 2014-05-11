@@ -60,7 +60,7 @@ public class app {
 		final JFrame frame = new JFrame("userPanel");
 		
 		final JFileChooser fileCh = new JFileChooser();
-		fileCh.setCurrentDirectory(new File("C:/"));
+		//fileCh.setCurrentDirectory(new File("C:/"));
 		fileCh.addActionListener(new ActionListener() {
 			
 			@Override
@@ -239,7 +239,8 @@ public class app {
 		resetButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				zawody.resetuj();
+				//zawody.resetuj();
+				zawody.exportWyniki();
 			}
 			
 		});
