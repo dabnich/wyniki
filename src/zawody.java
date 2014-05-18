@@ -281,9 +281,30 @@ public class zawody {
 		}
 	}
 	
-	boolean exportWyniki(){
-		String html=null;
-		html += "<table>";
+	String exportWyniki(){
+		String html="<HTML>" +
+				"<HEAD><meta http-equiv='Content-Type' content='text/html; charset=utf-8'></HEAD>" +
+				"<style>" +
+				"table{"+
+					"border-collapse: collapse;"+
+					"border: 1px solid;"+
+					"font-family: tahoma;"+
+					"font-size: 15;"+
+					"text-transform: uppercase;"+
+				"}"+
+				"table td, th{" +
+					"vertical-align: middle;" +
+					"padding: 0px 10px;" +
+					"border-style: solid none;"+
+					"border-width: 1px;"+
+				"}"+
+				"#przejazdy{" +
+					"vertical-align: top;" +
+					"font-size: 12;" +
+				"}" +
+				
+				"</style>" +
+				"<table><tr><th>poz</th><th>nr</th><th>imie</th><th>nazwisko</th><th>team</th><th>m-czasy</th><th>okr</th><th>czas</th></tr>";
 		for(int i=0; i<wyniki.size(); i++){
 			html += "<tr>";
 			html += "<td>"+Integer.toString(wyniki.get(i).pozycja)+"</td>";
@@ -291,19 +312,27 @@ public class zawody {
 			html += "<td>"+wyniki.get(i).zawodnik.imie+"</td>";
 			html += "<td>"+wyniki.get(i).zawodnik.nazwisko+"</td>";
 			html += "<td>"+wyniki.get(i).zawodnik.team+"</td>";
-			html += "<td>";
+			html += "<td id='przejazdy'>";
 			for(int n=0; n<przejazdy.size(); n++){
 				if(przejazdy.get(n).zawodnik.nr==wyniki.get(i).zawodnik.nr){
-					html += "<br>"+timeToString(przejazdy.get(n).czas);
+					if(n==0){
+						html += timeToString(przejazdy.get(n).czas);
+					}
+					else{
+						html += "<br>"+timeToString(przejazdy.get(n).czas);
+					}
 				}
 			}
 			html += "</td>";
 			html += "<td>"+wyniki.get(i).okrazenie+"</td>";
+			html += "<td>"+pomiar.getString(wyniki.get(i).czas)+"</td>";
 			html += "</tr>";
 		}
-		html += "</table>";
-		if(new csv("wyniki__"+pomiar.getDateStart()+".txt").write(html)) return true;
-		return false;
+		html += "</table></head>";
+		if(new csv("wyniki__"+pomiar.getDateStart()+".html").write(html)){
+			return (String)("wyniki__"+pomiar.getDateStart()+".html");
+		}
+		return null;
 	}
 	
 	boolean dodajPrzejazdCSV(ArrayList<String> listPrzejazd){

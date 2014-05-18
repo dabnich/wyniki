@@ -131,7 +131,8 @@ public class csv {
 		File f = new File(file);
 		BufferedWriter writer;
 		try {
-			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f, true)));
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f, true), "UTF-8"));
+			
 			//OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(f));
 			
 		

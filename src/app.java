@@ -18,6 +18,7 @@ import java.util.Date;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -46,19 +47,23 @@ public class app {
 		
 
 		//userPanel();
+		
 		wyborPliku();
 		
+		//zawody.zawodnicyZpliku("txt.txt");
 		//show();
 		
 	}
 	static String plik = null;
+	static JFrame window;
 	
 
 	public static void wyborPliku(){
 		
-		JPanel panel = new JPanel();
+		JPanel panel = new JPanel(new BorderLayout());
 		final JFrame frame = new JFrame("userPanel");
-		
+		final JLabel label = new JLabel("Wczytaj plik z zawodnikami");
+		label.setFont(new Font("Arial", 3, 25));
 		final JFileChooser fileCh = new JFileChooser();
 		//fileCh.setCurrentDirectory(new File("C:/"));
 		fileCh.addActionListener(new ActionListener() {
@@ -79,6 +84,7 @@ public class app {
 			}
 		});
 		
+		panel.add(label, BorderLayout.NORTH);
 		panel.add(fileCh);
 		
 		frame.setContentPane(panel);
@@ -164,11 +170,6 @@ public class app {
 		System.out.print(new Date().toLocaleString());
 
 		
-	
-		
-		
-		
-		
 		/*
 		zawody.addZawodnik(2, "Robert", "Banach", "Hotel 4 Brzozy");
 		zawody.addZawodnik(1, "Bartosz", "Banach", "Hotel 4 Brzozy");
@@ -239,14 +240,55 @@ public class app {
 		resetButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//zawody.resetuj();
-				zawody.exportWyniki();
+				zawody.resetuj();
+				//zawody.exportWyniki();
 			}
 			
 		});
 		controlPanel.add(resetButton);
 		
 		controlPanel.add(JTimerLabel.getInstance());
+		
+		JPanel controlPanelDown = new JPanel(new FlowLayout());
+		JButton eksportButton = new JButton("eksportuj wyniki");
+		eksportButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//zawody.resetuj();
+				String a = zawody.exportWyniki();
+				final JDialog dialog = new JDialog(window, "title");
+				JPanel panel = new JPanel();
+				JLabel label; 
+				if(a!=null){
+					label = new JLabel("Wyniki zosta³y wyeksportowane do pliku: "+a);
+				}
+				else{
+					label = new JLabel("B³¹d: wyniki nie zosta³y wyeksportowane do pliku!");
+				}
+				panel.add(label);
+				JButton okButton = new JButton("ok");
+				okButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						dialog.setVisible(false);
+					}
+				});
+				panel.add(okButton);
+				dialog.setContentPane(panel);
+				dialog.setVisible(true);
+				dialog.setLocation(300, 300);
+				dialog.setSize(550, 70);
+			}
+			
+		});
+		controlPanelDown.add(eksportButton);
+		
+		JPanel controlPanelAll = new JPanel(new GridLayout(2,1));
+		controlPanelAll.add(controlPanel);
+		controlPanelAll.add(controlPanelDown);
+		
+		
+		
 
         final JTextField nrText = new JTextField(3);
         nrText.requestFocus();
@@ -383,10 +425,19 @@ public class app {
 		topPanel.add(topPanelDown);
 		
 		JPanel centerPanel = new JPanel(new GridLayout(1, 2));
+		final JLabel labelPrzejazdy = new JLabel("tabela przejazdów");
+		final JLabel labelWyniki = new JLabel("tabela wyników");
 		final JScrollPane scroll = new JScrollPane(table);
 		final JScrollPane scrollSort = new JScrollPane(tableSort);
-		centerPanel.add(scroll);
-		centerPanel.add(scrollSort);
+		JPanel panelPrzejazdy = new JPanel(new BorderLayout());
+		JPanel panelWyniki = new JPanel(new BorderLayout());
+		panelPrzejazdy.add(labelPrzejazdy, BorderLayout.NORTH);
+		panelPrzejazdy.add(scroll);
+		panelWyniki.add(labelWyniki, BorderLayout.NORTH);
+		panelWyniki.add(scrollSort);
+		centerPanel.add(panelPrzejazdy);
+		centerPanel.add(panelWyniki);
+
 		
 		JPanel content = new JPanel();
 		content.setLayout(new BorderLayout(30, 30));
@@ -394,10 +445,11 @@ public class app {
 		//content.add(new JPanel(), BorderLayout.EAST);
 		content.add(centerPanel, BorderLayout.CENTER);
 		//content.add(new JPanel(), BorderLayout.WEST);
-		content.add(controlPanel, BorderLayout.SOUTH);
+		content.add(controlPanelAll, BorderLayout.SOUTH);
 		
 		
-		JFrame window = new JFrame("GUI Test");
+		
+		window = new JFrame("wyniki by Michal Dabrowski");
 		window.setContentPane(content);
 		/*
 		window.setSize(800,600);

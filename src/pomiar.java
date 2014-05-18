@@ -34,6 +34,13 @@ public class pomiar {
 		return format.format(new Date().getTime()-startTime+wartosc);
 	}
 	
+	public String getString(int czas){
+		SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+		TimeZone zone = TimeZone.getTimeZone("GMT-0");
+		format.setTimeZone(zone);
+		return format.format(czas);
+	}
+	
 	public String getDateStart(){
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 		TimeZone zone = TimeZone.getTimeZone("GMT+2");
