@@ -183,7 +183,7 @@ public class zawody {
 	}
 	
 	
-	ArrayList<String> addPrzejazd(zawodnik zawodnik){
+	boolean addPrzejazd(zawodnik zawodnik){
 		try{
 			int okrazenie = getOkrazenia(zawodnik)+1;
 			int czas = pomiar.getInt();
@@ -273,13 +273,17 @@ public class zawody {
 			lista.add(Integer.toString(okrazenie));
 			lista.add(Integer.toString(poz));
 			dodajPrzejazdCSV(lista);
-			return lista;
+			// gdy zwracala arrayList  - return lista; 
+			return true;
 		}
 		catch(Exception e){
 			e.getMessage();
-			return null;
+			// gdy zwracala arrayList  - return null 
+			return false;
 		}
 	}
+	
+	
 	
 	String exportWyniki(){
 		String html="<HTML>" +

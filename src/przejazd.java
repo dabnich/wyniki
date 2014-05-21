@@ -13,6 +13,16 @@ public class przejazd {
 		this.okrazenie = okrazenie;
 		this.pozycja = pozycja;
 	}
+	
+	public przejazd(zawodnik zawodnik, int czas){
+		this.zawodnik = zawodnik;
+		this.czas = czas;
+	}
+	
+	void ustawOkrazenie(int okrazenie){
+		this.okrazenie = okrazenie;
+	}
+	
 	void ustawPozycje(int pozycja){
 		this.pozycja = pozycja;
 	}

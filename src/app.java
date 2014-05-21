@@ -38,13 +38,6 @@ import javax.swing.Timer;
 public class app {
 	
 	public static void main(String[] args) {
-        /*SwingUtilities.invokeLater(new Runnable(){
-            @Override
-            public void run() {
-            	show();
-            }
-        });*/
-		
 
 		//userPanel();
 		
@@ -102,67 +95,6 @@ public class app {
 	final static String columnNames[] = { "nr", "imie", "nazwisko", "team", "czas", "lap", "poz"};
 	
 	
-	static void userPanel(){
-		
-		JPanel panel = new JPanel();
-		//panel.setLayout(new SpringLayout());
-		
-		JPanel addForm = new JPanel();
-		JPanel addPanel = new JPanel();
-		addForm.setLayout(new GridLayout(2,6, 10, 10));
-		final JPanel explore = new JPanel();
-		
-		JLabel labelNr = new JLabel("numer");
-		JLabel labelImie = new JLabel("imie");
-		JLabel labelNazwisko = new JLabel("nazwisko");
-		JLabel labelRok = new JLabel("rok urodzenia");
-		JLabel labelTeam = new JLabel("team");
-		
-		final JTextField buttonNr = new JTextField();
-		final JTextField buttonImie = new JTextField();
-		final JTextField buttonNazwisko = new JTextField();
-		JTextField buttonRok = new JTextField();
-		final JTextField buttonTeam = new JTextField();
-		
-		JButton addButton = new JButton("zapisz");
-		addButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try{
-					zawody.addZawodnik(Integer.parseInt(buttonNr.getText()), buttonImie.getText(), buttonNazwisko.getText(), buttonTeam.getText());
-					explore.add(new JLabel(Integer.toString(zawody.zawodnicy.get(zawody.zawodnicy.size()).nr)));
-					explore.add(new JLabel(zawody.zawodnicy.get(zawody.zawodnicy.size()).imie));
-					explore.add(new JLabel(zawody.zawodnicy.get(zawody.zawodnicy.size()).nazwisko));					
-					explore.add(new JLabel(zawody.zawodnicy.get(zawody.zawodnicy.size()).team));				
-				System.out.print(zawody.zawodnicy.get(0).imie);	
-				}
-				catch(Exception a){
-					a.getMessage();
-				}
-			}
-		});
-		
-		addForm.add(labelNr);
-		addForm.add(labelImie);
-		addForm.add(labelNazwisko);
-		addForm.add(labelRok);
-		addForm.add(labelTeam);
-		addForm.add(new JLabel());
-		addForm.add(buttonNr);
-		addForm.add(buttonImie);
-		addForm.add(buttonNazwisko);
-		addForm.add(buttonRok);
-		addForm.add(buttonTeam);
-		addForm.add(addButton);
-		panel.add(addForm);
-		panel.add(explore);
-		
-		JFrame frame = new JFrame("userPanel");
-		frame.setContentPane(panel);
-		frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-		frame.setVisible(true);
-		
-	}
 	
 	static void init(){
 		zawody.ustawCSV("przejazdy__"+zawody.pomiar.getDateStart()+".txt");
@@ -372,7 +304,7 @@ public class app {
 		if(zawody.zawodnicy.size()<15){ 
 			topPanelDown.setLayout(new FlowLayout());
 		}
-		else topPanelDown.setLayout(new GridLayout(rowsButtons, 12));
+		else topPanelDown.setLayout(new GridLayout(rowsButtons, 15));
 		
 		final ArrayList <JButton> buttonsList = new ArrayList<JButton>();
 		
@@ -420,9 +352,9 @@ public class app {
         topPanelUp.add(backButton);
 		JPanel topPanel = new JPanel();
 		
-		topPanel.setLayout(new GridLayout(2, 1));
-		topPanel.add(topPanelUp);
-		topPanel.add(topPanelDown);
+		topPanel.setLayout(new BorderLayout());
+		topPanel.add(topPanelUp, BorderLayout.NORTH);
+		topPanel.add(topPanelDown, BorderLayout.CENTER);
 		
 		JPanel centerPanel = new JPanel(new GridLayout(1, 2));
 		final JLabel labelPrzejazdy = new JLabel("tabela przejazdów");
