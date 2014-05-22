@@ -92,7 +92,7 @@ public class app {
 	
 	
 	final static zawody zawody = new zawody();
-	final static String columnNames[] = { "nr", "imie", "nazwisko", "team", "czas", "lap", "poz"};
+	final static String columnNames[] = { "nr", "imie", "nazwisko", "team", "plec", "kategoria", "miejscosc", "czas", "lap", "poz"};
 	
 	
 	
@@ -325,7 +325,8 @@ public class app {
 					while(modelSort.getRowCount()>0){
 						modelSort.removeRow(0);
 					}
-					modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
+					//modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
+					modelSort.setDataVector(zawody.getWynikiTable("a", "m2", "gdansk", "a"), columnNames);
 				}
 			});
 			topPanelDown.add(buttonsList.get(i));

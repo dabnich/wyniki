@@ -131,9 +131,29 @@ public class zawody {
 			String imie = list.get(1);
 			String nazwisko = list.get(2);
 			String team="";
+			String plec="m";
+			String kategoria = "elita";
+			String miejscowosc = null;
 			if(list.size()>3){
 				if(list.get(3).length()>0){
 					team = list.get(3);
+				}
+			}
+			if(list.size()>4){
+				if(list.get(4).length()>0){
+					if(list.get(4).charAt(0) == 'k' || list.get(4).charAt(0)=='m'){
+						plec = list.get(4);
+					}
+				}
+			}
+			if(list.size()>5){
+				if(list.get(5).length()>0){
+					kategoria = list.get(5);
+				}
+			}
+			if(list.size()>6){
+				if(list.get(6).length()>0){
+					miejscowosc = list.get(6);
 				}
 			}
 			int startI=0;
@@ -154,7 +174,7 @@ public class zawody {
 					for(int i=0; i<startI; i++){
 						zawodnicyTmp.add(zawodnicy.get(i));
 					}
-					zawodnicyTmp.add(new zawodnik(nr, imie, nazwisko, team));
+					zawodnicyTmp.add(new zawodnik(nr, imie, nazwisko, team, plec, kategoria, miejscowosc));
 					for(int i=startI; i<zawodnicy.size(); i++){
 						zawodnicyTmp.add(zawodnicy.get(i));
 					}
@@ -163,12 +183,12 @@ public class zawody {
 					for(int i=0; i<zawodnicy.size(); i++){
 						zawodnicyTmp.add(zawodnicy.get(i));
 					}
-					zawodnicyTmp.add(new zawodnik(nr, imie, nazwisko, team));
+					zawodnicyTmp.add(new zawodnik(nr, imie, nazwisko, team, plec, kategoria, miejscowosc));
 				}
 
 			}
 			else{
-				zawodnicyTmp.add(new zawodnik(nr, imie, nazwisko, team));
+				zawodnicyTmp.add(new zawodnik(nr, imie, nazwisko, team, plec, kategoria, miejscowosc));
 				for(int i=startI; i<zawodnicy.size(); i++){
 					zawodnicyTmp.add(zawodnicy.get(i));
 				}
@@ -270,6 +290,9 @@ public class zawody {
 			lista.add(zawodnik.imie);
 			lista.add(zawodnik.nazwisko);
 			lista.add(zawodnik.team);
+			lista.add(zawodnik.plec);
+			lista.add(zawodnik.kategoria);
+			lista.add(zawodnik.miejscowosc);
 			lista.add(Integer.toString(okrazenie));
 			lista.add(Integer.toString(poz));
 			dodajPrzejazdCSV(lista);
@@ -283,6 +306,105 @@ public class zawody {
 		}
 	}
 	
+	private ArrayList<przejazd> getFiltrWynikiList(String filtrPlec, String filtrKategoria, String filtrMiejscowosc, String filtrTeam){
+		ArrayList<przejazd> filtrWyniki = new ArrayList<przejazd>();
+		String plec = filtrPlec;
+		String kategoria = filtrKategoria;
+		String miejscowosc = filtrMiejscowosc;
+		String team = filtrTeam;
+
+		for(int i=0; i<wyniki.size(); i++){
+			plec = filtrPlec;
+			kategoria = filtrKategoria;
+			miejscowosc = filtrMiejscowosc;
+			team = filtrTeam;
+			if(filtrPlec=="a") plec = wyniki.get(i).zawodnik.plec;
+			if(filtrKategoria=="a") kategoria = wyniki.get(i).zawodnik.kategoria;
+			if(filtrMiejscowosc=="a") miejscowosc = wyniki.get(i).zawodnik.miejscowosc;
+			if(filtrTeam=="a") team = wyniki.get(i).zawodnik.team;
+			System.out.println("Dane: "+plec+","+kategoria+","+miejscowosc+","+team);
+			if(wyniki.get(i).zawodnik.plec==plec) System.out.println("plecOK");
+			if(wyniki.get(i).zawodnik.kategoria==kategoria) System.out.println("kategoriaOK");
+			if(wyniki.get(i).zawodnik.miejscowosc==miejscowosc) System.out.println("miejscowoscOK");
+
+			if(wyniki.get(i).zawodnik.plec.equals(plec) && wyniki.get(i).zawodnik.kategoria.equals(kategoria) && wyniki.get(i).zawodnik.miejscowosc.equals(miejscowosc) && wyniki.get(i).zawodnik.team.equals(team)){
+				System.out.println("kua");
+				filtrWyniki.add(wyniki.get(i));
+			}
+		}
+		return filtrWyniki;
+	}
+	
+	/*
+	
+	private ArrayList<przejazd> getFiltrWynikiList(String filtrPlec){
+		ArrayList<przejazd> filtrWyniki = new ArrayList<przejazd>();
+		String plec = "m";
+		String plec2 = "m";
+		
+
+		for(int i=0; i<wyniki.size(); i++){
+			//plec = filtrPlec;
+			//if(filtrPlec==null) plec = wyniki.get(i).zawodnik.plec;
+			//System.out.println(Character.toChars(109));
+
+			if(wyniki.get(i).zawodnik.plec.codePointAt(0)==plec.codePointAt(0)) filtrWyniki.add(wyniki.get(i));
+		}
+		return filtrWyniki;
+	}
+	*/
+	
+	public String[][] getWynikiTable(String filtrPlec, String filtrKategoria, String filtrMiejscowosc, String filtrTeam){
+		//ArrayList<przejazd> filtrWyniki = getFiltrWynikiList(filtrPlec, filtrKategoria, filtrMiejscowosc, filtrTeam);
+		ArrayList<przejazd> filtrWyniki = getFiltrWynikiList(filtrPlec, filtrKategoria, filtrMiejscowosc, filtrTeam);
+		String[][] table = new String[filtrWyniki.size()][10];
+		for(int i=0; i<filtrWyniki.size(); i++){
+			String pozycja, nr, imie, nazwisko, team, czas, okrazenie, plec, kategoria, miejscowosc;
+			nr = Integer.toString(filtrWyniki.get(i).zawodnik.nr);
+			imie = filtrWyniki.get(i).zawodnik.imie;
+			nazwisko = filtrWyniki.get(i).zawodnik.nazwisko;
+			team = filtrWyniki.get(i).zawodnik.team;
+			plec = filtrWyniki.get(i).zawodnik.plec;
+			kategoria = filtrWyniki.get(i).zawodnik.kategoria;
+			miejscowosc = filtrWyniki.get(i).zawodnik.miejscowosc;
+			SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+			TimeZone zone = TimeZone.getTimeZone("GMT-0");
+			format.setTimeZone(zone);
+			czas = format.format(filtrWyniki.get(i).czas);
+			//format.setTimeZone("GMT-1");
+			czas = format.format(filtrWyniki.get(i).czas);
+			//czas = Integer.toString(przejazdySort.get(i).czas);
+			okrazenie = Integer.toString(filtrWyniki.get(i).okrazenie);
+			pozycja = Integer.toString(filtrWyniki.get(i).pozycja);
+			table[i] = new String[] {nr, imie, nazwisko, team, plec, kategoria, miejscowosc, czas, okrazenie, pozycja};
+		}
+		return table;
+	}
+	
+	public String[][] getWynikiTable(){
+		String[][] table = new String[wyniki.size()][6];
+		for(int i=0; i<wyniki.size(); i++){
+			String pozycja, nr, imie, nazwisko, team, czas, okrazenie, plec, kategoria, miejscowosc;
+			nr = Integer.toString(wyniki.get(i).zawodnik.nr);
+			imie = wyniki.get(i).zawodnik.imie;
+			nazwisko = wyniki.get(i).zawodnik.nazwisko;
+			team = wyniki.get(i).zawodnik.team;
+			plec = wyniki.get(i).zawodnik.plec;
+			kategoria = wyniki.get(i).zawodnik.kategoria;
+			miejscowosc = wyniki.get(i).zawodnik.miejscowosc;
+			SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+			TimeZone zone = TimeZone.getTimeZone("GMT-0");
+			format.setTimeZone(zone);
+			czas = format.format(wyniki.get(i).czas);
+			//format.setTimeZone("GMT-1");
+			czas = format.format(wyniki.get(i).czas);
+			//czas = Integer.toString(przejazdySort.get(i).czas);
+			okrazenie = Integer.toString(wyniki.get(i).okrazenie);
+			pozycja = Integer.toString(wyniki.get(i).pozycja);
+			table[i] = new String[] {nr, imie, nazwisko, team, plec, kategoria, miejscowosc, czas, okrazenie, pozycja};
+		}
+		return table;
+	}
 	
 	
 	String exportWyniki(){
@@ -452,27 +574,9 @@ public class zawody {
 		return table;
 	}
 	
-	public String[][] getWynikiTable(){
-		String[][] table = new String[wyniki.size()][6];
-		for(int i=0; i<wyniki.size(); i++){
-			String pozycja, nr, imie, nazwisko, team, czas, okrazenie;
-			nr = Integer.toString(wyniki.get(i).zawodnik.nr);
-			imie = wyniki.get(i).zawodnik.imie;
-			nazwisko = wyniki.get(i).zawodnik.nazwisko;
-			team = wyniki.get(i).zawodnik.team;
-			SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
-			TimeZone zone = TimeZone.getTimeZone("GMT-0");
-			format.setTimeZone(zone);
-			czas = format.format(wyniki.get(i).czas);
-			//format.setTimeZone("GMT-1");
-			czas = format.format(wyniki.get(i).czas);
-			//czas = Integer.toString(przejazdySort.get(i).czas);
-			okrazenie = Integer.toString(wyniki.get(i).okrazenie);
-			pozycja = Integer.toString(wyniki.get(i).pozycja);
-			table[i] = new String[] {nr, imie, nazwisko, team, czas, okrazenie, pozycja};
-		}
-		return table;
-	}
+
+	
+
 
 	public void deleteLastPrzejazd(){
 		int nr=przejazdy.get(przejazdy.size()-1).zawodnik.nr;

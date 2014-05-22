@@ -82,6 +82,7 @@ public class csv {
 				String[] elementyTab = linia.split(",");
 				ArrayList<String> elementyList = new ArrayList<String>();
 				for(int i=0; i<elementyTab.length; i++){
+					elementyTab[i] = elementyTab[i].trim();
 					elementyList.add(elementyTab[i]);
 				}
 				lista.add(elementyList);
