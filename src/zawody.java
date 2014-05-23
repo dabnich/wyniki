@@ -318,10 +318,10 @@ public class zawody {
 			kategoria = filtrKategoria;
 			miejscowosc = filtrMiejscowosc;
 			team = filtrTeam;
-			if(filtrPlec=="a") plec = wyniki.get(i).zawodnik.plec;
-			if(filtrKategoria=="a") kategoria = wyniki.get(i).zawodnik.kategoria;
-			if(filtrMiejscowosc=="a") miejscowosc = wyniki.get(i).zawodnik.miejscowosc;
-			if(filtrTeam=="a") team = wyniki.get(i).zawodnik.team;
+			if(filtrPlec=="/") plec = wyniki.get(i).zawodnik.plec;
+			if(filtrKategoria=="/") kategoria = wyniki.get(i).zawodnik.kategoria;
+			if(filtrMiejscowosc=="/") miejscowosc = wyniki.get(i).zawodnik.miejscowosc;
+			if(filtrTeam=="/") team = wyniki.get(i).zawodnik.team;
 			System.out.println("Dane: "+plec+","+kategoria+","+miejscowosc+","+team);
 			if(wyniki.get(i).zawodnik.plec==plec) System.out.println("plecOK");
 			if(wyniki.get(i).zawodnik.kategoria==kategoria) System.out.println("kategoriaOK");
@@ -406,6 +406,30 @@ public class zawody {
 		return table;
 	}
 	
+	public String[][] getPrzejazdyTable(){
+		String[][] table = new String[przejazdy.size()][6];
+		int n=0;
+		for(int i=przejazdy.size()-1; i>=0; i--){
+			String pozycja, nr, imie, nazwisko, team, czas, okrazenie, plec, kategoria, miejscowosc;
+			nr = Integer.toString(przejazdy.get(i).zawodnik.nr);
+			imie = przejazdy.get(i).zawodnik.imie;
+			nazwisko = przejazdy.get(i).zawodnik.nazwisko;
+			team = przejazdy.get(i).zawodnik.team;
+			plec = przejazdy.get(i).zawodnik.plec;
+			kategoria = przejazdy.get(i).zawodnik.kategoria;
+			miejscowosc = przejazdy.get(i).zawodnik.miejscowosc;
+			SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.S");
+			TimeZone zone = TimeZone.getTimeZone("GMT-0");
+			format.setTimeZone(zone);
+			czas = format.format(przejazdy.get(i).czas);
+			//format.setTimeZone("GMT-1");
+			czas = format.format(przejazdy.get(i).czas);
+			okrazenie = Integer.toString(przejazdy.get(i).okrazenie);
+			pozycja = Integer.toString(przejazdy.get(i).pozycja);
+			table[n++] = new String[] {nr, imie, nazwisko, team, plec, kategoria, miejscowosc, czas, okrazenie, pozycja};
+		}
+		return table;
+	}
 	
 	String exportWyniki(){
 		String html="<HTML>" +
@@ -415,22 +439,21 @@ public class zawody {
 					"border-collapse: collapse;"+
 					"border: 1px solid;"+
 					"font-family: tahoma;"+
-					"font-size: 15;"+
+					"font-size: 13;"+
 					"text-transform: uppercase;"+
 				"}"+
 				"table td, th{" +
 					"vertical-align: middle;" +
 					"padding: 0px 10px;" +
-					"border-style: solid none;"+
+					"border: solid none;"+
 					"border-width: 1px;"+
 				"}"+
 				"#przejazdy{" +
 					"vertical-align: top;" +
 					"font-size: 12;" +
 				"}" +
-				
 				"</style>" +
-				"<table><tr><th>poz</th><th>nr</th><th>imie</th><th>nazwisko</th><th>team</th><th>m-czasy</th><th>okr</th><th>czas</th></tr>";
+				"<table><tr><th>poz</th><th>nr</th><th>imie</th><th>nazwisko</th><th>team</th><th>katg</th><th>m-czasy</th><th>okr</th><th>czas</th></tr>";
 		for(int i=0; i<wyniki.size(); i++){
 			html += "<tr>";
 			html += "<td>"+Integer.toString(wyniki.get(i).pozycja)+"</td>";
@@ -438,6 +461,7 @@ public class zawody {
 			html += "<td>"+wyniki.get(i).zawodnik.imie+"</td>";
 			html += "<td>"+wyniki.get(i).zawodnik.nazwisko+"</td>";
 			html += "<td>"+wyniki.get(i).zawodnik.team+"</td>";
+			html += "<td>"+wyniki.get(i).zawodnik.kategoria+"</td>";
 			html += "<td id='przejazdy'>";
 			for(int n=0; n<przejazdy.size(); n++){
 				if(przejazdy.get(n).zawodnik.nr==wyniki.get(i).zawodnik.nr){
@@ -552,31 +576,8 @@ public class zawody {
 		return table;
 	}
 	
-	public String[][] getPrzejazdyTable(){
-		String[][] table = new String[przejazdy.size()][6];
-		int n=0;
-		for(int i=przejazdy.size()-1; i>=0; i--){
-			String nr, imie, nazwisko, team, czas, okrazenie, pozycja;
-			nr = Integer.toString(przejazdy.get(i).zawodnik.nr);
-			imie = przejazdy.get(i).zawodnik.imie;
-			nazwisko = przejazdy.get(i).zawodnik.nazwisko;
-			team = przejazdy.get(i).zawodnik.team;
-			SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.S");
-			TimeZone zone = TimeZone.getTimeZone("GMT-0");
-			format.setTimeZone(zone);
-			czas = format.format(przejazdy.get(i).czas);
-			//format.setTimeZone("GMT-1");
-			czas = format.format(przejazdy.get(i).czas);
-			okrazenie = Integer.toString(przejazdy.get(i).okrazenie);
-			pozycja = Integer.toString(przejazdy.get(i).pozycja);
-			table[n++] = new String[] {nr, imie, nazwisko, team, czas, okrazenie, pozycja};
-		}
-		return table;
-	}
-	
 
 	
-
 
 	public void deleteLastPrzejazd(){
 		int nr=przejazdy.get(przejazdy.size()-1).zawodnik.nr;
@@ -603,8 +604,6 @@ public class zawody {
 	}
 		
 		
-	
-	
 	public String[] getLastPrzejazd(){
 		String nr, imie, nazwisko, team, czas, okrazenie;
 		nr = Integer.toString(przejazdy.get(przejazdy.size()-1).zawodnik.nr);
@@ -628,6 +627,78 @@ public class zawody {
 			if(przejazdy.get(i).zawodnik.nr==zawodnik.nr) return przejazdy.get(i).okrazenie;
 		}
 		return 0;
+	}
+	
+	public ArrayList<String> getKategorie(){
+		ArrayList<String> kategorie = new ArrayList<String>();
+		for(int i=0; i<zawodnicy.size(); i++){
+			boolean isset=false;
+			for(int n=0; n<kategorie.size(); n++){
+				if(zawodnicy.get(i).kategoria.equals(kategorie.get(n))){
+					isset=true;
+					break;
+				}
+			}
+			if(isset==false){
+				kategorie.add(zawodnicy.get(i).kategoria);
+			}
+		}
+		return orderList(kategorie);
+	}
+	
+	public ArrayList<String> getMiejscowosci(){
+		ArrayList<String> miejscowosci = new ArrayList<String>();
+		for(int i=0; i<zawodnicy.size(); i++){
+			boolean isset=false;
+			for(int n=0; n<miejscowosci.size(); n++){
+				if(zawodnicy.get(i).miejscowosc.equals(miejscowosci.get(n))){
+					isset=true;
+					break;
+				}
+			}
+			if(isset==false){
+				miejscowosci.add(zawodnicy.get(i).miejscowosc);
+			}
+		}
+		return orderList(miejscowosci);
+	}
+	
+	public ArrayList<String> getTeamy(){
+		ArrayList<String> teamy = new ArrayList<String>();
+		for(int i=0; i<zawodnicy.size(); i++){
+			boolean isset=false;
+			for(int n=0; n<teamy.size(); n++){
+				if(zawodnicy.get(i).team.equals(teamy.get(n))){
+					isset=true;
+					break;
+				}
+			}
+			if(isset==false){
+				teamy.add(zawodnicy.get(i).team);
+			}
+		}
+		return orderList(teamy);
+	}
+	
+	private ArrayList<String> orderList(ArrayList<String> lista){
+		String tab[] = new String[lista.size()];
+		for(int i=0; i<lista.size(); i++){
+			tab[i] = lista.get(i);
+		}
+		for(int i=0; i<tab.length; i++){
+			for(int n=1; n<tab.length; n++){
+				String tmp = tab[n-1];
+				if(tab[n].compareTo(tmp)<0){
+					tab[n-1] = tab[n];
+					tab[n] = tmp;
+				}
+			}
+		}
+		ArrayList<String> listaOut = new ArrayList<String>();
+		for(int i=0; i<tab.length; i++){
+			listaOut.add(tab[i]);
+		}
+		return listaOut;
 	}
 
 	

@@ -9,6 +9,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
@@ -18,10 +20,13 @@ import java.util.Date;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -33,6 +38,10 @@ import javax.swing.text.StyleConstants.FontConstants;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.AbstractButton;
+import javax.swing.Icon;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 
 
 public class app {
@@ -93,7 +102,10 @@ public class app {
 	
 	final static zawody zawody = new zawody();
 	final static String columnNames[] = { "nr", "imie", "nazwisko", "team", "plec", "kategoria", "miejscosc", "czas", "lap", "poz"};
-	
+	static String filtrKategoria = "/";
+	static String filtrPlec = "/";
+	static String filtrMiasto = "/";
+	static String filtrTeam = "/";
 	
 	
 	static void init(){
@@ -125,6 +137,12 @@ public class app {
 	
 	public static void show() {
 		init();
+		
+		
+		
+
+		
+		
 		
 		final DefaultTableModel model = new DefaultTableModel(zawody.getPrzejazdyTable(), columnNames);
 		final DefaultTableModel modelSort = new DefaultTableModel(zawody.getWynikiTable(), columnNames);
@@ -240,7 +258,7 @@ public class app {
 						while(modelSort.getRowCount()>0){
 							modelSort.removeRow(0);
 						}
-						modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
+						modelSort.setDataVector(zawody.getWynikiTable(filtrPlec, filtrKategoria, filtrMiasto, filtrTeam), columnNames);
 					}
 					nrText.setText("");
 				}
@@ -272,7 +290,7 @@ public class app {
 							while(modelSort.getRowCount()>0){
 								modelSort.removeRow(0);
 							}
-							modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
+							modelSort.setDataVector(zawody.getWynikiTable(filtrPlec, filtrKategoria, filtrMiasto, filtrTeam), columnNames);
 						}
 						nrText.setText("");
 					}
@@ -295,7 +313,7 @@ public class app {
 				while(modelSort.getRowCount()>0){
 					modelSort.removeRow(0);
 				}
-				modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
+				modelSort.setDataVector(zawody.getWynikiTable(filtrPlec, filtrKategoria, filtrMiasto, filtrTeam), columnNames);
 			}
 		});
 
@@ -326,7 +344,7 @@ public class app {
 						modelSort.removeRow(0);
 					}
 					//modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
-					modelSort.setDataVector(zawody.getWynikiTable("a", "m2", "gdansk", "a"), columnNames);
+					modelSort.setDataVector(zawody.getWynikiTable(filtrPlec, filtrKategoria, filtrMiasto, filtrTeam), columnNames);
 				}
 			});
 			topPanelDown.add(buttonsList.get(i));
@@ -360,6 +378,7 @@ public class app {
 		JPanel centerPanel = new JPanel(new GridLayout(1, 2));
 		final JLabel labelPrzejazdy = new JLabel("tabela przejazdów");
 		final JLabel labelWyniki = new JLabel("tabela wyników");
+		final JLabel labelFiltry = new JLabel();
 		final JScrollPane scroll = new JScrollPane(table);
 		final JScrollPane scrollSort = new JScrollPane(tableSort);
 		JPanel panelPrzejazdy = new JPanel(new BorderLayout());
@@ -368,8 +387,258 @@ public class app {
 		panelPrzejazdy.add(scroll);
 		panelWyniki.add(labelWyniki, BorderLayout.NORTH);
 		panelWyniki.add(scrollSort);
+		panelWyniki.add(labelFiltry, BorderLayout.SOUTH);
 		centerPanel.add(panelPrzejazdy);
 		centerPanel.add(panelWyniki);
+        
+		JMenu filtrMenu = new JMenu("Filtr wyników");
+		JMenu filtrMenuPlec = new JMenu("plec");
+		JMenu filtrMenuKategoria = new JMenu("kategoria");
+		JMenu filtrMenuMiasto = new JMenu("miasto");
+		JMenu filtrMenuTeam = new JMenu("team");
+		
+		final ArrayList<JRadioButtonMenuItem> katList = new ArrayList<JRadioButtonMenuItem>();
+		
+		ArrayList<String> kategorie = zawody.getKategorie();
+		System.out.println("ile: "+kategorie.size());
+		for(int i=0; i<kategorie.size(); i++){
+			final String kat=kategorie.get(i);
+			JRadioButtonMenuItem tmpRadio = new JRadioButtonMenuItem(kategorie.get(i));
+			katList.add(tmpRadio);
+			katList.get(i).addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					filtrKategoria = kat;
+					System.out.println(filtrKategoria);
+					for(int n=0; n<katList.size(); n++){
+						if(!katList.get(n).getText().equals(kat)) katList.get(n).setSelected(false);
+					}
+					while(modelSort.getRowCount()>0){
+						modelSort.removeRow(0);
+					}
+					//modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
+					modelSort.setDataVector(zawody.getWynikiTable(filtrPlec, filtrKategoria, filtrMiasto, filtrTeam), columnNames);
+					String txt = "Filtry: "+filtrPlec+"     "+filtrKategoria+"     "+filtrMiasto+"     "+filtrTeam;
+					txt = txt.replace("/", "");
+					labelFiltry.setText(txt);				
+				}
+			});
+
+			filtrMenuKategoria.add(katList.get(i));
+		}
+		JRadioButtonMenuItem tmpRadio = new JRadioButtonMenuItem("wszyscy");
+		katList.add(tmpRadio);
+		katList.get(katList.size()-1).addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				filtrKategoria = "/";
+				
+				for(int n=0; n<katList.size(); n++){
+					if(!katList.get(n).getText().equals("wszyscy")) katList.get(n).setSelected(false);
+				}
+				while(modelSort.getRowCount()>0){
+					modelSort.removeRow(0);
+				}
+				//modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
+				modelSort.setDataVector(zawody.getWynikiTable(filtrPlec, filtrKategoria, filtrMiasto, filtrTeam), columnNames);
+				String txt = "Filtry: "+filtrPlec+"     "+filtrKategoria+"     "+filtrMiasto+"     "+filtrTeam;
+				txt = txt.replace("/", "");
+				labelFiltry.setText(txt);		
+			}
+		});
+		filtrMenuKategoria.add(katList.get(katList.size()-1));
+		
+		
+		
+		final ArrayList<JRadioButtonMenuItem> plecList = new ArrayList<JRadioButtonMenuItem>();
+		plecList.add(new JRadioButtonMenuItem("k"));
+		plecList.get(plecList.size()-1).addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				filtrPlec = "k";
+				for(int i=0; i<plecList.size(); i++){
+					if(!plecList.get(i).getText().equals(filtrPlec)) plecList.get(i).setSelected(false);
+				}
+				while(modelSort.getRowCount()>0){
+					modelSort.removeRow(0);
+				}
+				//modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
+				modelSort.setDataVector(zawody.getWynikiTable(filtrPlec, filtrKategoria, filtrMiasto, filtrTeam), columnNames);
+				String txt = "Filtry: "+filtrPlec+"     "+filtrKategoria+"     "+filtrMiasto+"     "+filtrTeam;
+				txt = txt.replace("/", "");
+				labelFiltry.setText(txt);		
+			}
+		});
+		plecList.add(new JRadioButtonMenuItem("m"));
+		plecList.get(plecList.size()-1).addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				filtrPlec = "m";
+				for(int i=0; i<plecList.size(); i++){
+					if(!plecList.get(i).getText().equals(filtrPlec)) plecList.get(i).setSelected(false);
+				}
+				while(modelSort.getRowCount()>0){
+					modelSort.removeRow(0);
+				}
+				//modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
+				modelSort.setDataVector(zawody.getWynikiTable(filtrPlec, filtrKategoria, filtrMiasto, filtrTeam), columnNames);
+				String txt = "Filtry: "+filtrPlec+"     "+filtrKategoria+"     "+filtrMiasto+"     "+filtrTeam;
+				txt = txt.replace("/", "");
+				labelFiltry.setText(txt);		
+			}
+		});
+		plecList.add(new JRadioButtonMenuItem("wszyscy"));
+		plecList.get(plecList.size()-1).addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				filtrPlec = "/";
+				for(int i=0; i<plecList.size(); i++){
+					if(!plecList.get(i).getText().equals("wszyscy")) plecList.get(i).setSelected(false);
+				}
+				while(modelSort.getRowCount()>0){
+					modelSort.removeRow(0);
+				}
+				//modelSort.setDataVector(zawody.getWynikiTable(), columnNames);
+				modelSort.setDataVector(zawody.getWynikiTable(filtrPlec, filtrKategoria, filtrMiasto, filtrTeam), columnNames);
+				String txt = "Filtry: "+filtrPlec+"     "+filtrKategoria+"     "+filtrMiasto+"     "+filtrTeam;
+				txt = txt.replace("/", "");
+				labelFiltry.setText(txt);		
+			}
+		});
+		for(int i=0; i<plecList.size(); i++){
+			filtrMenuPlec.add(plecList.get(i));
+		}
+		
+		
+		
+		final ArrayList<JRadioButtonMenuItem> miejscList = new ArrayList<JRadioButtonMenuItem>();
+		ArrayList<String> miejscowosci = zawody.getMiejscowosci();
+		for(int i=0; i<miejscowosci.size(); i++){
+			final String tmpMiejsc = miejscowosci.get(i);
+			tmpRadio = new JRadioButtonMenuItem(tmpMiejsc);
+			miejscList.add(tmpRadio);
+			miejscList.get(i).addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					filtrMiasto = tmpMiejsc;
+					for(int n=0; n<miejscList.size(); n++){
+						if(!miejscList.get(n).getText().equals(tmpMiejsc)) miejscList.get(n).setSelected(false);
+					}
+					while(modelSort.getRowCount()>0){
+						modelSort.removeRow(0);
+					}
+					modelSort.setDataVector(zawody.getWynikiTable(filtrPlec, filtrKategoria, filtrMiasto, filtrTeam), columnNames);
+					String txt = "Filtry: "+filtrPlec+"     "+filtrKategoria+"     "+filtrMiasto+"     "+filtrTeam;
+					txt = txt.replace("/", "");
+					labelFiltry.setText(txt);		
+				}
+			});
+			filtrMenuMiasto.add(miejscList.get(i));
+		}
+		
+		tmpRadio = new JRadioButtonMenuItem("wszystkie miasta");
+		miejscList.add(tmpRadio);
+		miejscList.get(miejscList.size()-1).addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				filtrMiasto = "/";
+				for(int n=0; n<miejscList.size(); n++){
+					if(!miejscList.get(n).getText().equals("wszystkie miasta")) miejscList.get(n).setSelected(false);
+				}
+				while(modelSort.getRowCount()>0){
+					modelSort.removeRow(0);
+				}
+				modelSort.setDataVector(zawody.getWynikiTable(filtrPlec, filtrKategoria, filtrMiasto, filtrTeam), columnNames);				
+				String txt = "Filtry: "+filtrPlec+"     "+filtrKategoria+"     "+filtrMiasto+"     "+filtrTeam;
+				txt = txt.replace("/", "");
+				labelFiltry.setText(txt);		
+			}
+		});
+		filtrMenuMiasto.add(miejscList.get(miejscList.size()-1));
+		
+		
+		final ArrayList<JRadioButtonMenuItem> teamList = new ArrayList<JRadioButtonMenuItem>();
+		ArrayList<String> teamy = zawody.getTeamy();
+		for(int i=0; i<teamy.size(); i++){
+			final String tmpTeam = teamy.get(i);
+			tmpRadio = new JRadioButtonMenuItem(tmpTeam);
+			teamList.add(tmpRadio);
+			teamList.get(i).addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					filtrTeam = tmpTeam;
+					for(int n=0; n<teamList.size(); n++){
+						if(!teamList.get(n).getText().equals(tmpTeam)) teamList.get(n).setSelected(false);
+					}
+					while(modelSort.getRowCount()>0){
+						modelSort.removeRow(0);
+					}
+					modelSort.setDataVector(zawody.getWynikiTable(filtrPlec, filtrKategoria, filtrMiasto, filtrTeam), columnNames);
+					String txt = "Filtry: "+filtrPlec+"     "+filtrKategoria+"     "+filtrMiasto+"     "+filtrTeam;
+					txt = txt.replace("/", "");
+					labelFiltry.setText(txt);		
+				}
+			});
+			filtrMenuTeam.add(teamList.get(i));
+		}
+		
+		tmpRadio = new JRadioButtonMenuItem("wszystkie teamy");
+		teamList.add(tmpRadio);
+		teamList.get(teamList.size()-1).addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				filtrTeam = "/";
+				for(int n=0; n<teamList.size(); n++){
+					if(!teamList.get(n).getText().equals("wszystkie teamy")) teamList.get(n).setSelected(false);
+				}
+				while(modelSort.getRowCount()>0){
+					modelSort.removeRow(0);
+				}
+				modelSort.setDataVector(zawody.getWynikiTable(filtrPlec, filtrKategoria, filtrMiasto, filtrTeam), columnNames);				
+				String txt = "Filtry: "+filtrPlec+"     "+filtrKategoria+"     "+filtrMiasto+"     "+filtrTeam;
+				txt = txt.replace("/", "");
+				labelFiltry.setText(txt);		
+			}
+		});
+		filtrMenuTeam.add(teamList.get(teamList.size()-1));
+		
+		filtrMenu.add(filtrMenuPlec);
+		filtrMenu.add(filtrMenuKategoria);
+		filtrMenu.add(filtrMenuMiasto);
+		filtrMenu.add(filtrMenuTeam);
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.add(filtrMenu);
+		JMenuItem resetFiltrMenu = new JMenuItem("Resetuj filtry");
+		resetFiltrMenu.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				filtrPlec="/";
+				filtrKategoria="/";
+				filtrMiasto="/";
+				filtrTeam="/";
+				while(modelSort.getRowCount()>0){
+					modelSort.removeRow(0);
+				}
+				modelSort.setDataVector(zawody.getWynikiTable(filtrPlec, filtrKategoria, filtrMiasto, filtrTeam), columnNames);				
+				String txt = "Filtry: "+filtrPlec+"     "+filtrKategoria+"     "+filtrMiasto+"     "+filtrTeam;
+				txt = txt.replace("/", "");
+				labelFiltry.setText(txt);		
+				
+			}
+		});
+		menuBar.add(resetFiltrMenu);
+        
+        
+
+
 
 		
 		JPanel content = new JPanel();
@@ -388,13 +657,17 @@ public class app {
 		window.setSize(800,600);
 		window.setLocation(100,100);
 		*/
-		window.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		window.setSize(800,600);
+		//window.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		window.setVisible(true);
-		
-		
+		window.setJMenuBar(menuBar);
+		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+}
+	
+	
+	
 
 
-	}
 	
     private static final class JTimerLabel extends JLabel{
         private static JTimerLabel INSTANCE;
