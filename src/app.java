@@ -50,9 +50,14 @@ public class app {
 
 		//userPanel();
 		
-		wyborPliku();
 		
-		//zawody.zawodnicyZpliku("txt.txt");
+		init();
+		zawody.zawodnicyZpliku("lista.csv");
+		zawody.importujPrzejazdy("przejazdy.txt");
+		zawody.exportWyniki();
+		//wyborPliku();
+		
+		
 		//show();
 		
 	}

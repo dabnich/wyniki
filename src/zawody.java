@@ -133,7 +133,7 @@ public class zawody {
 			String team="";
 			String plec="m";
 			String kategoria = "elita";
-			String miejscowosc = null;
+			String miejscowosc = "";
 			if(list.size()>3){
 				if(list.get(3).length()>0){
 					team = list.get(3);
@@ -312,22 +312,33 @@ public class zawody {
 		String kategoria = filtrKategoria;
 		String miejscowosc = filtrMiejscowosc;
 		String team = filtrTeam;
+		String plec1, kategoria1, miejscowosc1, team1;
 
 		for(int i=0; i<wyniki.size(); i++){
 			plec = filtrPlec;
 			kategoria = filtrKategoria;
 			miejscowosc = filtrMiejscowosc;
 			team = filtrTeam;
-			if(filtrPlec=="/") plec = wyniki.get(i).zawodnik.plec;
-			if(filtrKategoria=="/") kategoria = wyniki.get(i).zawodnik.kategoria;
-			if(filtrMiejscowosc=="/") miejscowosc = wyniki.get(i).zawodnik.miejscowosc;
-			if(filtrTeam=="/") team = wyniki.get(i).zawodnik.team;
+			plec1 = wyniki.get(i).zawodnik.plec;
+			kategoria1 = wyniki.get(i).zawodnik.kategoria;
+			miejscowosc1 = wyniki.get(i).zawodnik.miejscowosc;
+			team1 = wyniki.get(i).zawodnik.team;
+			
+			if(plec1==null) plec1="/";
+			if(kategoria1==null) kategoria1="/";
+			if(miejscowosc1==null) miejscowosc1="/";
+			if(team1==null) team1="/";
+					
+			if(filtrPlec=="/") plec = plec1;
+			if(filtrKategoria=="/") kategoria = kategoria1;
+			if(filtrMiejscowosc=="/") miejscowosc = miejscowosc1;
+			if(filtrTeam=="/") team = team1;
+			
 			System.out.println("Dane: "+plec+","+kategoria+","+miejscowosc+","+team);
 			if(wyniki.get(i).zawodnik.plec==plec) System.out.println("plecOK");
 			if(wyniki.get(i).zawodnik.kategoria==kategoria) System.out.println("kategoriaOK");
 			if(wyniki.get(i).zawodnik.miejscowosc==miejscowosc) System.out.println("miejscowoscOK");
-
-			if(wyniki.get(i).zawodnik.plec.equals(plec) && wyniki.get(i).zawodnik.kategoria.equals(kategoria) && wyniki.get(i).zawodnik.miejscowosc.equals(miejscowosc) && wyniki.get(i).zawodnik.team.equals(team)){
+			if(plec1.equals(plec) && kategoria1.equals(kategoria) && miejscowosc1.equals(miejscowosc) && team1.equals(team)){
 				System.out.println("kua");
 				filtrWyniki.add(wyniki.get(i));
 			}
@@ -493,6 +504,20 @@ public class zawody {
 		return false;
 	}
 	
+	public boolean importujPrzejazdy(String plik){
+		csv csv = new csv(plik);
+		ArrayList<ArrayList<String>> lista = csv.getToList();
+		if(lista!=null && lista.size()>0){
+			for(int i=0; i<lista.size(); i++){
+				zawodnik zawodnik = getZawodnikById(Integer.parseInt(lista.get(i).get(0)));
+				if(zawodnik!=null){
+					addPrzejazd(zawodnik);
+				}
+			}
+		}
+		return false;
+	}
+	
 	private int addWynik(przejazd przejazd){
 		
 			int okrazenie = przejazd.okrazenie;
@@ -576,9 +601,7 @@ public class zawody {
 		return table;
 	}
 	
-
 	
-
 	public void deleteLastPrzejazd(){
 		int nr=przejazdy.get(przejazdy.size()-1).zawodnik.nr;
 		int okr=przejazdy.get(przejazdy.size()-1).okrazenie;
@@ -651,11 +674,21 @@ public class zawody {
 		for(int i=0; i<zawodnicy.size(); i++){
 			boolean isset=false;
 			for(int n=0; n<miejscowosci.size(); n++){
-				if(zawodnicy.get(i).miejscowosc.equals(miejscowosci.get(n))){
+				System.out.println("SizeM: "+miejscowosci.get(0));
+				System.out.println("SizeZ: "+zawodnicy.size());
+				if(zawodnicy.get(i).miejscowosc!=null){
+					if(zawodnicy.get(i).miejscowosc.equals(miejscowosci.get(n))){
+						isset=true;
+						break;
+					}
+				}
+				else{
 					isset=true;
 					break;
 				}
 			}
+
+			
 			if(isset==false){
 				miejscowosci.add(zawodnicy.get(i).miejscowosc);
 			}
